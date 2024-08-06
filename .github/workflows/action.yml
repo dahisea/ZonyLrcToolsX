@@ -17,14 +17,21 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: Test and Archive
+    - name: Run .NET Command
       run: |
-        cd ./src/ZonyLrcTools.Cli
-        dotnet download -sc netease -o "/lyric/" -s "6632256805" -l
+        cd src/ZonyLrcTools.Cli
+        dotnet download -sc netease -o "lyric/" -s "6632256805" -l
+
+    - name: Install zip
+      run: sudo apt-get install -y zip
+
+    - name: Archive output
+      run: |
+        cd src/ZonyLrcTools.Cli
         zip -r lyric.zip lyric/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: lyric
-        path: ./src/ZonyLrcTools.Cli/lyric.zip
+        path: src/ZonyLrcTools.Cli/lyric.zip
