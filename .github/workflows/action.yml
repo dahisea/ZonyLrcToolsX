@@ -17,7 +17,7 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: Run .NET Command and Install Dependencies
+    - name: Getting Dependence and Building
       run: |
         cd ${{ github.workspace }}/src/ZonyLrcTools.Cli
         dotnet run download -sc netease -o "${{ github.workspace }}/lyric/" -s "${{ secrets.playlist }}" -l
