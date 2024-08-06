@@ -20,7 +20,7 @@ jobs:
     - name: Run .NET Command and Install Dependencies
       run: |
         cd ${{ github.workspace }}/src/ZonyLrcTools.Cli
-        dotnet run download -sc netease -o "${{ github.workspace }}/lyric/" -s "6632256805" -l
+        dotnet run download -sc netease -o "${{ github.workspace }}/lyric/" -s "${{ secrets.playlist }}" -l
 
     - name: Archive output
       run: |
@@ -28,7 +28,7 @@ jobs:
         zip -r lyric.zip lyric/
 
     - name: Upload artifact
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: lyric
         path: ${{ github.workspace }}/lyric.zip
