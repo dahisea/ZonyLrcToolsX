@@ -9,16 +9,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
+    - name: Checkout code
       uses: actions/checkout@v4
       
-    # Setup .NET environment
     - name: Setup .NET
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 6.0.x
 
-    - name: Test Api
+    - name: Test and Archive
       run: |
         cd ./src/ZonyLrcTools.Cli
-        dotnet run download
+        dotnet download -sc netease -o "/lyric/" -s "6632256805" -l
+        zip -r lyric.zip lyric/
+
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: lyric
+        path: ./src/ZonyLrcTools.Cli/lyric.zip
