@@ -17,27 +17,18 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
-    - name: Install dotnet tool
-      run: dotnet tool install --global dotnet-download
-
-    - name: Add dotnet tools to PATH
-      run: echo "/home/runner/.dotnet/tools" >> $GITHUB_PATH
-
-    - name: Run .NET Command
+    - name: Run .NET Command and Install Dependencies
       run: |
-        cd src/ZonyLrcTools.Cli
+        cd {{ github.workspace }}/src/ZonyLrcTools.Cli
         dotnet download -sc netease -o "lyric/" -s "6632256805" -l
-
-    - name: Install zip
-      run: sudo apt-get install -y zip
 
     - name: Archive output
       run: |
-        cd src/ZonyLrcTools.Cli
+        cd {{ github.workspace }}/src/ZonyLrcTools.Cli
         zip -r lyric.zip lyric/
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
       with:
         name: lyric
-        path: src/ZonyLrcTools.Cli/lyric.zip
+        path: ./src/ZonyLrcTools.Cli/lyric.zip
