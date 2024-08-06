@@ -17,6 +17,12 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
+    - name: Install dotnet tool
+      run: dotnet tool install --global dotnet-download
+
+    - name: Add dotnet tools to PATH
+      run: echo "/home/runner/.dotnet/tools" >> $GITHUB_PATH
+
     - name: Run .NET Command
       run: |
         cd src/ZonyLrcTools.Cli
