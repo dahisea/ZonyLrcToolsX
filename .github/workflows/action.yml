@@ -15,8 +15,13 @@ jobs:
       with:
         dotnet-version: 6.0.x
 
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --configuration Release --no-restore
         
-     # Run daily test and redirect output to /dev/null
     - name: Test Api
       run: |
         cd ./src/ZonyLrcTools.Cli
