@@ -20,7 +20,7 @@ jobs:
     - name: Run .NET Command and Install Dependencies
       run: |
         cd ${{ github.workspace }}/src/ZonyLrcTools.Cli
-        dotnet run download -sc netease -o "lyric/" -s "6632256805" -l
+        dotnet run download -sc netease -o "/lyric/" -s "6632256805" -l
 
     - name: Archive output
       run: |
