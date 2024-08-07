@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using ZonyLrcTools.Common.MusicScanner;
 
 namespace ZonyLrcTools.Common
 {
