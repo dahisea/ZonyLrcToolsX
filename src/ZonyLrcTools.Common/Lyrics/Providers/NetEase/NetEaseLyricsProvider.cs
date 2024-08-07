@@ -1,7 +1,12 @@
-using System.Text.RegularExpressions;
-using ZonyLrcTools.Common.MusicScanner;
-using ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel;
+using System.Net.Http.Headers;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using ZonyLrcTools.Common.Configuration;
+using ZonyLrcTools.Common.Infrastructure.Encryption;
+using ZonyLrcTools.Common.Infrastructure.Exceptions;
+using ZonyLrcTools.Common.Infrastructure.Network;
+using ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel;
+
 
 namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
 {
@@ -44,15 +49,14 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
 
             ValidateSongSearchResponse(searchResult, args);
 
-            // 通过 MusicInfo 获取 songId
-            var songId = searchResult.GetFirstMatchSongId(args.SongName, args.Duration);
-            var getLyricRequest = new GetLyricRequest(songId);
-
             return await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
                 requestOption: request =>
                 {
                     request.Headers.Referrer = new Uri(NetEaseRequestReferer);
-                    request.Content = new FormUrlEncodedContent(HandleRequest(getLyricRequest, secretKey, encSecKey));
+                    request.Content = new FormUrlEncodedContent(HandleRequest(
+                        new GetLyricRequest(searchResult.GetFirstMatchSongId(args.SongName, args.Duration)),
+                        secretKey,
+                        encSecKey));
                 });
         }
 
