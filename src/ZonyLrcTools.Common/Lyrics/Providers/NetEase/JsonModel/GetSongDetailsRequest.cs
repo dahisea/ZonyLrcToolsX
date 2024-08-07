@@ -4,7 +4,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 {
     public class GetSongDetailsRequest
     {
-        public GetSongDetailsRequest(string songId)
+        public GetSongDetailsRequest(string? songId)
         {
             SongId = songId;
             SongIds = $"%5B{songId}%5D";
