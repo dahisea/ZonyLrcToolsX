@@ -1,4 +1,5 @@
 using System.Net.Http.Headers;
+using System.Text;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using ZonyLrcTools.Common.Configuration;
@@ -42,8 +43,10 @@ public class KuWoLyricsProvider : LyricsProvider
 
         ValidateSongSearchResponse(songSearchResponse, args);
 
+        var musicId = songSearchResponse.GetMatchedMusicId(args.SongName, args.Artist, args.Duration);
+
         return await _warpHttpClient.GetAsync<GetLyricsResponse>(KuWoSearchLyricsUrl,
-            new GetLyricsRequest(songSearchResponse.GetMatchedMusicId(args.SongName, args.Artist, args.Duration)),
+            new GetLyricsRequest(musicId),
             op =>
             {
                 op.Headers.UserAgent.Add(UserAgent);
@@ -53,9 +56,8 @@ public class KuWoLyricsProvider : LyricsProvider
 
     protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject, LyricsProviderArgs args)
     {
-        await ValueTask.CompletedTask;
-
         var lyricsResponse = (GetLyricsResponse)lyricsObject;
+
         if (lyricsResponse.Data?.Lyrics == null)
         {
             return new LyricsItemCollection(null);
