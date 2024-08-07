@@ -16,7 +16,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
                 return perfectMatch.Id;
             }
 
-            if (duration is null or 0)
+            if (duration != null or 0)
             {
                 return Items.SongItems.First().Id;
             }
