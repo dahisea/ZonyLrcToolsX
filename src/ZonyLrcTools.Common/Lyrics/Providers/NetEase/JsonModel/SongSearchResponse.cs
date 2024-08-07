@@ -10,7 +10,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         [JsonProperty("code")]
         public int StatusCode { get; set; }
 
-        public string? GetFirstMatchSongId(string songName, string? duration)
+        public string? GetFirstMatchSongId(string songName, string? duration, string? songId)
         {
             var perfectMatch = Items.SongItems.FirstOrDefault(x => x.Name == songName);
             if (perfectMatch != null)
