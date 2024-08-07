@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 
 namespace ZonyLrcTools.Common.Lyrics.Providers.KuWo.JsonModel;
 
@@ -17,12 +17,29 @@ public class SongSearchResponse
             return prefectMatch.MusicId;
         }
 
-        if (duration is null or 0)
+        if (duration == null || duration == 0)
         {
             return SongList.First().MusicId;
         }
 
-        return SongList.OrderBy(t => Math.Abs(t.Duration - duration.Value)).First().MusicId;
+        // Ensure Duration is not null or empty for comparison
+        return SongList
+            .OrderBy(t => 
+            {
+                if (string.IsNullOrEmpty(t.Duration) || t.Duration == "0")
+                {
+                    return long.MaxValue; // Treat as invalid or very large for sorting
+                }
+                
+                // Convert Duration to a long if needed for comparison
+                if (long.TryParse(t.Duration, out var durationValue))
+                {
+                    return Math.Abs(durationValue - duration.Value);
+                }
+                return long.MaxValue; // Treat as invalid if parsing fails
+            })
+            .First()
+            .MusicId;
     }
 }
 
