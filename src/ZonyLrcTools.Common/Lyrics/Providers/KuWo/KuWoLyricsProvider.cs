@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Headers;
-using System.Text;
+using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using ZonyLrcTools.Common.Configuration;
@@ -22,8 +21,7 @@ public class KuWoLyricsProvider : LyricsProvider
 
     private static readonly ProductInfoHeaderValue UserAgent = new("Chrome", "81.0.4044.138");
 
-    public KuWoLyricsProvider(IWarpHttpClient warpHttpClient,
-        IOptions<GlobalOptions> options)
+    public KuWoLyricsProvider(IWarpHttpClient warpHttpClient, IOptions<GlobalOptions> options)
     {
         _warpHttpClient = warpHttpClient;
         _options = options.Value;
@@ -53,8 +51,7 @@ public class KuWoLyricsProvider : LyricsProvider
             });
     }
 
-    protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject,
-        LyricsProviderArgs args)
+    protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject, LyricsProviderArgs args)
     {
         await ValueTask.CompletedTask;
 
