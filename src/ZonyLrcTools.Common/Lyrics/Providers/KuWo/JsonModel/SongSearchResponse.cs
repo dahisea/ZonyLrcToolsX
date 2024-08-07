@@ -56,5 +56,5 @@ public class SongSearchResponseSongDetail
     /// 歌曲的时间长度。
     /// </summary>
     [JsonProperty("DURATION")]
-    public long Duration { get; set; }
+    public string Duration { get; set; }
 }
