@@ -48,7 +48,7 @@ namespace ZonyLrcTools.Common.Album.NetEase
 
             var songDetailJsonStr = await _warpHttpClient.GetAsync(
                 GetMusicInfoApi,
-                new GetSongDetailsRequest(searchResult.GetFirstMatchSongId(songName, null)),
+                new GetSongDetailsRequest(searchResult.GetFirstMatchSongId(args.SongName)),
                 _defaultOption);
 
             var url = JObject.Parse(songDetailJsonStr).SelectToken("$.songs[0].album.picUrl")?.Value<string>();
