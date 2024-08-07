@@ -31,11 +31,6 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
     }
 }
 
-public class InnerListItemModel
-{
-    [JsonProperty("songs")]
-    public List<SongItem> SongItems { get; set; } = new List<SongItem>();
-}
 
 public class SongItem
 {
