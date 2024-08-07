@@ -39,7 +39,7 @@ public sealed class PlayListSongModel
     /// 歌曲的id。
     /// </summary>
     [JsonProperty("id")]
-    public string? SongId { get; set; }
+    public long songId { get; set; }
     
     /// <summary>
     /// 歌曲的艺术家信息，可能会有多位艺术家/歌手。
