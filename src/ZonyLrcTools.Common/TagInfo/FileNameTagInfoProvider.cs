@@ -25,22 +25,30 @@ namespace ZonyLrcTools.Cli.Infrastructure.Tag
             _options = options.Value;
         }
 
-        public async ValueTask<MusicInfo?> LoadAsync(string filePath)
+        public ValueTask<MusicInfo?> LoadAsync(string filePath)
         {
-            await ValueTask.CompletedTask;
-
-            var regex = _options.Provider.Tag.Plugin
-                .First(t => t.Name == ConstantName)
-                .Extensions[RegularExpressionsOption];
-
-            var match = Regex.Match(Path.GetFileNameWithoutExtension(filePath), regex);
-
-            if (match.Groups.Count != 3)
+            try
             {
-                return null;
-            }
+                var regex = _options.Provider.Tag.Plugin
+                    .First(t => t.Name == ConstantName)
+                    .Extensions[RegularExpressionsOption];
 
-            return new MusicInfo(filePath, match.Groups["name"].Value, match.Groups["artist"].Value);
+                var match = Regex.Match(Path.GetFileNameWithoutExtension(filePath), regex);
+
+                if (match.Groups.Count != 3)
+                {
+                    return new ValueTask<MusicInfo?>(result: null);
+                }
+
+                var musicInfo = new MusicInfo(filePath, match.Groups["name"].Value, match.Groups["artist"].Value);
+                return new ValueTask<MusicInfo?>(result: musicInfo);
+            }
+            catch (Exception ex)
+            {
+                // 记录异常日志
+                // _logger.LogError(ex, "Error parsing file name.");
+                return new ValueTask<MusicInfo?>(result: null);
+            }
         }
     }
 }
