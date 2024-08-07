@@ -8,7 +8,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 
         [JsonProperty("code")] public int StatusCode { get; set; }
 
-        public long GetFirstMatchSongId(string songName, long? duration)
+        public string? GetFirstMatchSongId(string songName, string? duration)
         {
             var perfectMatch = Items.SongItems.FirstOrDefault(x => x.Name == songName);
             if (perfectMatch != null)
@@ -62,7 +62,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         /// 歌曲的实际长度。
         /// </summary>
         [JsonProperty("duration")]
-        public long Duration { get; set; }
+        public string? Duration { get; set; }
     }
 
     public class SongArtistModel
