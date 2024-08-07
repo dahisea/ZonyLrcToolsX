@@ -44,7 +44,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         /// 歌曲的 Sid (Song Id)。
         /// </summary>
         [JsonProperty("id")]
-        public long songId { get; set; }
+        public string? songId { get; set; }
 
         /// <summary>
         /// 歌曲的演唱者。
