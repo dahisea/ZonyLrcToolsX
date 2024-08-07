@@ -54,7 +54,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
                 {
                     request.Headers.Referrer = new Uri(NetEaseRequestReferer);
                     request.Content = new FormUrlEncodedContent(HandleRequest(
-                        new GetLyricRequest(searchResult.GetFirstMatchSongId(args.SongName, args.Duration)),
+                        new GetLyricRequest(searchResult.GetFirstMatchSongId(args.SongName, args.Duration, arg.SongId)),
                         secretKey,
                         encSecKey));
                 });
