@@ -47,7 +47,7 @@ namespace ZonyLrcTools.Common.Infrastructure.Extensions
         /// <param name="musicInfo">需要打印的歌曲信息。</param>
         public static void LogSuccessful(this IWarpLogger logger, MusicInfo musicInfo)
         {
-            logger.InfoAsync($"歌曲名: {musicInfo.Name}, 艺术家: {musicInfo.Artist}, Sid: {musicInfo.SongId}, 下载成功.").GetAwaiter().GetResult();
+            logger.InfoAsync($"歌曲名: {musicInfo.Name}, 艺术家: {musicInfo.Artist}, Sid: {NeLrequest.SongId}, 下载成功.").GetAwaiter().GetResult();
         }
     }
 }
