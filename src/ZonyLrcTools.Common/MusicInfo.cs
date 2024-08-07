@@ -29,9 +29,9 @@ namespace ZonyLrcTools.Common
         public string Artist { get; set; }
         
         /// <summary>
-        /// 歌曲的Sid。
+        /// 歌曲的 Sid。
         /// </summary>
-        public string songId { get; set; }
+        public string SongId { get; set; }
 
         /// <summary>
         /// 是否下载成功?
@@ -49,11 +49,13 @@ namespace ZonyLrcTools.Common
         /// <param name="filePath">歌曲对应的物理文件路径。</param>
         /// <param name="name">歌曲的名称。</param>
         /// <param name="artist">歌曲的作者。</param>
-        public MusicInfo(string filePath, string name, string artist)
+        /// <param name="songId">歌曲的 Sid。</param>
+        public MusicInfo(string filePath, string name, string artist, string songId)
         {
-            FilePath = Path.Combine(Path.GetDirectoryName(filePath)!, HandleInvalidFilePath(Path.GetFileName(filePath)));
+            FilePath = Path.Combine(Path.GetDirectoryName(filePath) ?? string.Empty, HandleInvalidFilePath(Path.GetFileName(filePath)));
             Name = name;
             Artist = artist;
+            SongId = songId;  // Initialize SongId from the provided argument
         }
 
         /// <summary>
@@ -77,6 +79,20 @@ namespace ZonyLrcTools.Common
         public static bool operator !=(MusicInfo? left, MusicInfo? right)
         {
             return !(left == right);
+        }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj is MusicInfo other)
+            {
+                return FilePath == other.FilePath;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return FilePath.GetHashCode();
         }
     }
 }
