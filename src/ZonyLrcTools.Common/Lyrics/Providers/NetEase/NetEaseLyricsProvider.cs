@@ -6,6 +6,7 @@ using ZonyLrcTools.Common.Infrastructure.Encryption;
 using ZonyLrcTools.Common.Infrastructure.Exceptions;
 using ZonyLrcTools.Common.Infrastructure.Network;
 using ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel;
+using ZonyLrcTools.Common.MusicScanner;
 
 namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
 {
