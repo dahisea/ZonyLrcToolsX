@@ -3,53 +3,41 @@ using Newtonsoft.Json;
 namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 {
     public class SongSearchResponse
-{
-    [JsonProperty("result")]
-    public InnerListItemModel Items { get; set; } = null!;
-
-    [JsonProperty("code")]
-    public int StatusCode { get; set; }
-
-    public string? GetFirstMatchSongId(string songName, string? duration)
     {
-        var perfectMatch = Items.SongItems.FirstOrDefault(x => x.Name == songName);
-        if (perfectMatch != null)
-        {
-            return perfectMatch.SongId;
-        }
+        [JsonProperty("result")]
+        public InnerListItemModel Items { get; set; } = null!;
 
-        if (!string.IsNullOrEmpty(duration))
+        [JsonProperty("code")]
+        public int StatusCode { get; set; }
+
+        public string? GetFirstMatchSongId(string songName, string? duration)
         {
-            var durationMatch = Items.SongItems.FirstOrDefault(x => x.Duration == duration);
-            if (durationMatch != 0)
+            var perfectMatch = Items.SongItems.FirstOrDefault(x => x.Name == songName);
+            if (perfectMatch != null)
             {
-                return durationMatch.SongId;
+                return perfectMatch.SongId;
             }
+
+            if (!string.IsNullOrEmpty(duration))
+            {
+                var durationMatch = Items.SongItems.FirstOrDefault(x => x.Duration == duration);
+                if (durationMatch != 0)
+                {
+                    return durationMatch.SongId;
+                }
+            }
+
+            return Items.SongItems.First().SongId;
         }
-
-        return Items.SongItems.First().SongId;
     }
-}
-
-
-public class SongItem
-{
-    [JsonProperty("name")]
-    public string Name { get; set; } = string.Empty;
-
-    [JsonProperty("id")]
-    public string SongId { get; set; } = string.Empty;
-
-    [JsonProperty("duration")]
-    public string Duration { get; set; } = string.Empty;
-}
-
 
     public class InnerListItemModel
     {
-        [JsonProperty("songs")] public IList<SongModel> SongItems { get; set; } = null!;
+        [JsonProperty("songs")]
+        public IList<SongModel> SongItems { get; set; } = null!;
 
-        [JsonProperty("songCount")] public int SongCount { get; set; }
+        [JsonProperty("songCount")]
+        public int SongCount { get; set; }
     }
 
     public class SongModel
@@ -64,7 +52,7 @@ public class SongItem
         /// 歌曲的 Sid (Song Id)。
         /// </summary>
         [JsonProperty("id")]
-        public string? songId { get; set; }
+        public string? SongId { get; set; }
 
         /// <summary>
         /// 歌曲的演唱者。
@@ -107,5 +95,17 @@ public class SongItem
         /// </summary>
         [JsonProperty("img1v1Url")]
         public string? PictureUrl { get; set; }
+    }
+
+    public class SongItem
+    {
+        [JsonProperty("name")]
+        public string Name { get; set; } = string.Empty;
+
+        [JsonProperty("id")]
+        public string SongId { get; set; } = string.Empty;
+
+        [JsonProperty("duration")]
+        public string Duration { get; set; } = string.Empty;
     }
 }
