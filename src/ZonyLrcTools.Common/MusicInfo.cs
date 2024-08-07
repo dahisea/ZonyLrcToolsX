@@ -26,11 +26,6 @@ namespace ZonyLrcTools.Common
         /// 歌曲的作者。
         /// </summary>
         public string Artist { get; set; }
-        
-        /// <summary>
-        /// 歌曲的Sid。
-        /// </summary>
-        public string SongId { get; set; }
 
         /// <summary>
         /// 是否下载成功?
