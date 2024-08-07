@@ -21,7 +21,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
             if (!string.IsNullOrEmpty(duration))
             {
                 var durationMatch = Items.SongItems.FirstOrDefault(x => x.Duration == duration);
-                if (durationMatch != 0)
+                if (durationMatch != null && !string.IsNullOrEmpty(durationMatch.SongId) && durationMatch.SongId != "0")
                 {
                     return durationMatch.SongId;
                 }
@@ -95,17 +95,5 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         /// </summary>
         [JsonProperty("img1v1Url")]
         public string? PictureUrl { get; set; }
-    }
-
-    public class SongItem
-    {
-        [JsonProperty("name")]
-        public string Name { get; set; } = string.Empty;
-
-        [JsonProperty("id")]
-        public string SongId { get; set; } = string.Empty;
-
-        [JsonProperty("duration")]
-        public string Duration { get; set; } = string.Empty;
     }
 }
