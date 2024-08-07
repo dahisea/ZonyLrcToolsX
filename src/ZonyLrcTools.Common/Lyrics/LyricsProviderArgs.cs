@@ -8,7 +8,7 @@ namespace ZonyLrcTools.Common.Lyrics
 
         public long Duration { get; set; }
 
-        public LyricsProviderArgs(string songName, string artist, long duration)
+        public LyricsProviderArgs(string songName, string artist, string duration)
         {
             SongName = songName;
             Artist = artist;
