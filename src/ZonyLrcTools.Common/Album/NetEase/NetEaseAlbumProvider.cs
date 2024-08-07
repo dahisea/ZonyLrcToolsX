@@ -35,6 +35,8 @@ namespace ZonyLrcTools.Common.Album.NetEase
         public async ValueTask<byte[]> DownloadAsync(string songName, string artist)
         {
             var requestParameter = new SongSearchRequest(songName, artist);
+            var args = new LyricsProviderArgs("songName", "artist", "duration", "songId");
+
             var searchResult = await _warpHttpClient.PostAsync<SongSearchResponse>(
                 SearchMusicApi,
                 requestParameter,
@@ -48,7 +50,7 @@ namespace ZonyLrcTools.Common.Album.NetEase
 
             var songDetailJsonStr = await _warpHttpClient.GetAsync(
                 GetMusicInfoApi,
-                new GetSongDetailsRequest(searchResult.GetFirstMatchSongId(songName)),
+                new GetSongDetailsRequest(searchResult.GetFirstMatchSongId(args.songName)),
                 _defaultOption);
 
             var url = JObject.Parse(songDetailJsonStr).SelectToken("$.songs[0].album.picUrl")?.Value<string>();
