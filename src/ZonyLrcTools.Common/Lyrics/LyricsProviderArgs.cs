@@ -15,7 +15,7 @@ namespace ZonyLrcTools.Common.Lyrics
             SongName = songName;
             Artist = artist;
             Duration = duration;
-            SongId = songId
+            SongId = songId;
         }
     }
 }
