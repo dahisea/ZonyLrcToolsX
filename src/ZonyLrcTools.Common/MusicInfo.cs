@@ -33,7 +33,7 @@ namespace ZonyLrcTools.Common
         public bool IsSuccessful { get; set; } = true;
 
         /// <summary>
-        /// 是否时纯音乐?
+        /// 是否是纯音乐?
         /// </summary>
         public bool IsPruneMusic { get; set; } = false;
 
@@ -50,6 +50,11 @@ namespace ZonyLrcTools.Common
             Artist = artist;
         }
 
+        /// <summary>
+        /// 处理无效的文件路径字符。
+        /// </summary>
+        /// <param name="srcText">源文本。</param>
+        /// <returns>处理后的文本。</returns>
         private string HandleInvalidFilePath(string srcText)
         {
             return InvalidFilePathRegex().Replace(srcText, "");
@@ -60,17 +65,7 @@ namespace ZonyLrcTools.Common
 
         public static bool operator ==(MusicInfo? left, MusicInfo? right)
         {
-            if (left is null && right is null)
-            {
-                return true;
-            }
-
-            if (left is null || right is null)
-            {
-                return false;
-            }
-            
-            return left.FilePath == right.FilePath;
+            return left?.FilePath == right?.FilePath;
         }
 
         public static bool operator !=(MusicInfo? left, MusicInfo? right)
