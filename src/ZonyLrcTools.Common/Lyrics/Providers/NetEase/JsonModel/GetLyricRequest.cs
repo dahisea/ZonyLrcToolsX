@@ -6,7 +6,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 {
     public class GetLyricRequest
     {
-        public GetLyricRequest(string songId)
+        public GetLyricRequest(string? songId)
         {
             OS = "pc";
             Id = songId;
