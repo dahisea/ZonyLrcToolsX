@@ -10,11 +10,12 @@ namespace ZonyLrcTools.Common.Lyrics
         
         public string SongId { get; set; }
 
-        public LyricsProviderArgs(string songName, string artist, string duration)
+        public LyricsProviderArgs(string songName, string artist, string duration, string songId)
         {
             SongName = songName;
             Artist = artist;
             Duration = duration;
+            SongId = songId
         }
     }
 }
