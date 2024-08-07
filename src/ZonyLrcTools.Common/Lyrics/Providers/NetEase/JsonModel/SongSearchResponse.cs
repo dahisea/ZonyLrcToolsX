@@ -3,27 +3,52 @@ using Newtonsoft.Json;
 namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 {
     public class SongSearchResponse
+{
+    [JsonProperty("result")]
+    public InnerListItemModel Items { get; set; } = null!;
+
+    [JsonProperty("code")]
+    public int StatusCode { get; set; }
+
+    public string? GetFirstMatchSongId(string songName, string? duration)
     {
-        [JsonProperty("result")] public InnerListItemModel Items { get; set; } = null!;
-
-        [JsonProperty("code")] public int StatusCode { get; set; }
-
-        public string? GetFirstMatchSongId(string songName, string? duration)
+        var perfectMatch = Items.SongItems.FirstOrDefault(x => x.Name == songName);
+        if (perfectMatch != null)
         {
-            var perfectMatch = Items.SongItems.FirstOrDefault(x => x.Name == songName);
-            if (perfectMatch != null)
-            {
-                return perfectMatch.songId;
-            }
-
-            if (duration != null or 0)
-            {
-                return Items.SongItems.First().songId;
-            }
-
-            return Items.SongItems.OrderBy(t => Math.Abs(t.Duration - duration.Value)).First().songId;
+            return perfectMatch.SongId;
         }
+
+        if (!string.IsNullOrEmpty(duration))
+        {
+            var durationMatch = Items.SongItems.FirstOrDefault(x => x.Duration == duration);
+            if (durationMatch != 0)
+            {
+                return durationMatch.SongId;
+            }
+        }
+
+        return Items.SongItems.First().SongId;
     }
+}
+
+public class InnerListItemModel
+{
+    [JsonProperty("songs")]
+    public List<SongItem> SongItems { get; set; } = new List<SongItem>();
+}
+
+public class SongItem
+{
+    [JsonProperty("name")]
+    public string Name { get; set; } = string.Empty;
+
+    [JsonProperty("id")]
+    public string SongId { get; set; } = string.Empty;
+
+    [JsonProperty("duration")]
+    public string Duration { get; set; } = string.Empty;
+}
+
 
     public class InnerListItemModel
     {
