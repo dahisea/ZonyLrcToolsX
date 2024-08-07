@@ -4,6 +4,8 @@ using Newtonsoft.Json;
 
 namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 {
+public partial class NeLrequest
+{
     public class GetLyricRequest
     {
         public GetLyricRequest(string? SongId)
@@ -34,4 +36,6 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 
         [JsonProperty("crypto")] public string Protocol { get; set; } = "api";
     }
+}
+
 }
