@@ -45,7 +45,7 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
     {
         if (string.IsNullOrEmpty(Cookie))
         {
-            var loginResponse = await LoginViqQrCodeAsync();
+            var loginResponse = await LoginViaQrCodeAsync();
             Cookie = loginResponse.cookieContainer?.GetCookieHeader(new Uri(Host)) ?? string.Empty;
             CsrfToken = loginResponse.csrfToken ?? string.Empty;
         }
@@ -118,53 +118,52 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
         };
     }
 
-/// <summary>
-/// 通过二维码登录网易云音乐，登录成功后返回 Cookie 和 CSRF Token。
-/// </summary>
-private async Task<(string? csrfToken, CookieContainer? cookieContainer)> LoginViqQrCodeAsync()
-{
-    // Get unikey.
-    var qrCodeKeyJson = await (await PostAsync($"{Host}/weapi/login/qrcode/unikey", new
+    /// <summary>
+    /// 通过二维码登录网易云音乐，登录成功后返回 Cookie 和 CSRF Token。
+    /// </summary>
+    private async Task<(string? csrfToken, CookieContainer? cookieContainer)> LoginViaQrCodeAsync()
     {
-        type = 1
-    })).Content.ReadAsStringAsync();
-    var uniKey = JObject.Parse(qrCodeKeyJson).SelectToken("$.unikey")!.Value<string>();
-    if (string.IsNullOrEmpty(uniKey)) return (null, null);
-
-    // Generate QR code link.
-    var qrCodeLink = $"{Host}/login?codekey={uniKey}";
-
-    // Generate QR code.
-    var qrGenerator = new QRCodeGenerator();
-    var qrCodeData = qrGenerator.CreateQrCode(qrCodeLink, QRCodeGenerator.ECCLevel.L);
-    var qrCode = new AsciiQRCode(qrCodeData);
-    var asciiQrCodeString = qrCode.GetGraphic(1, drawQuietZones: false);
-
-    _logger.LogInformation("请使用网易云 APP 扫码登录:");
-    _logger.LogInformation("\n{AsciiQrCodeString}", asciiQrCodeString);
-    _logger.LogInformation("或者直接访问以下链接以进行登录:");
-    _logger.LogInformation(qrCodeLink);
-
-    // Wait for login success.
-    var isLogin = false;
-    while (!isLogin)
-    {
-        var (isSuccess, cookieContainer) = await CheckIsLoginAsync(uniKey);
-        isLogin = isSuccess;
-
-        if (!isLogin)
+        // Get unikey.
+        var qrCodeKeyJson = await (await PostAsync($"{Host}/weapi/login/qrcode/unikey", new
         {
-            await Task.Delay(2000);
-        }
-        else
+            type = 1
+        })).Content.ReadAsStringAsync();
+        var uniKey = JObject.Parse(qrCodeKeyJson).SelectToken("$.unikey")!.Value<string>();
+        if (string.IsNullOrEmpty(uniKey)) return (null, null);
+
+        // Generate QR code link.
+        var qrCodeLink = $"{Host}/login?codekey={uniKey}";
+
+        // Generate QR code.
+        var qrGenerator = new QRCodeGenerator();
+        var qrCodeData = qrGenerator.CreateQrCode(qrCodeLink, QRCodeGenerator.ECCLevel.L);
+        var qrCode = new AsciiQRCode(qrCodeData);
+        var asciiQrCodeString = qrCode.GetGraphic(1, drawQuietZones: false);
+
+        _logger.LogInformation("请使用网易云 APP 扫码登录:");
+        _logger.LogInformation("\n{AsciiQrCodeString}", asciiQrCodeString);
+        _logger.LogInformation("或者直接访问以下链接以进行登录:");
+        _logger.LogInformation(qrCodeLink);
+
+        // Wait for login success.
+        var isLogin = false;
+        while (!isLogin)
         {
-            return (cookieContainer?.GetCookies(new Uri(Host))["__csrf"]?.Value, cookieContainer);
+            var (isSuccess, cookieContainer) = await CheckIsLoginAsync(uniKey);
+            isLogin = isSuccess;
+
+            if (!isLogin)
+            {
+                await Task.Delay(2000);
+            }
+            else
+            {
+                return (cookieContainer?.GetCookies(new Uri(Host))["__csrf"]?.Value, cookieContainer);
+            }
         }
+
+        return (null, null);
     }
-
-    return (null, null);
-}
-
 
     /// <summary>
     /// 使用 <paramref name="uniKey"/> 检测是否登录成功。
@@ -208,7 +207,7 @@ private async Task<(string? csrfToken, CookieContainer? cookieContainer)> LoginV
     /// 封装了网易云音乐的加密请求方式。
     /// </summary>
     /// <param name="url">需要请求的网易云音乐 API 地址。</param>
-    /// <param name="params">API 请求参数。</param>
+    /// <param="params">API 请求参数。</param>
     /// <returns>
     /// 正常情况下会返回一个 <see cref="HttpResponseMessage"/> 对象。
     /// </returns>
@@ -225,3 +224,4 @@ private async Task<(string? csrfToken, CookieContainer? cookieContainer)> LoginV
             });
     }
 }
+
