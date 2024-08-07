@@ -13,15 +13,15 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
             var perfectMatch = Items.SongItems.FirstOrDefault(x => x.Name == songName);
             if (perfectMatch != null)
             {
-                return perfectMatch.Id;
+                return perfectMatch.songId;
             }
 
             if (duration != null or 0)
             {
-                return Items.SongItems.First().Id;
+                return Items.SongItems.First().songId;
             }
 
-            return Items.SongItems.OrderBy(t => Math.Abs(t.Duration - duration.Value)).First().Id;
+            return Items.SongItems.OrderBy(t => Math.Abs(t.Duration - duration.Value)).First().songId;
         }
     }
 
