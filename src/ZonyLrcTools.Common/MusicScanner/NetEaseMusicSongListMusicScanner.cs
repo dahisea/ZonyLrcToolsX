@@ -50,7 +50,7 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
             CsrfToken = loginResponse.csrfToken ?? string.Empty;
         }
 
-        async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string songId)
+        async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string SongId)
         {
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
@@ -62,7 +62,7 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
                     request.Content = new FormUrlEncodedContent(HandleRequest(new
                     {
                         csrf_token = CsrfToken,
-                        id = songId,
+                        id = SongId,
                         n = 1000,
                         offset = 0,
                         total = true,
