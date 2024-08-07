@@ -1,42 +1,44 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ZonyLrcTools.Common.Infrastructure.DependencyInject;
 using ZonyLrcTools.Common.Infrastructure.Logging;
 
-namespace ZonyLrcTools.Cli.Infrastructure.Logging;
-
-public class SerilogWarpLogger : IWarpLogger, ITransientDependency
+namespace ZonyLrcTools.Cli.Infrastructure.Logging
 {
-    private readonly ILogger<SerilogWarpLogger> _logger;
-
-    public SerilogWarpLogger(ILogger<SerilogWarpLogger> logger)
+    public class SerilogWarpLogger : IWarpLogger, ITransientDependency
     {
-        _logger = logger;
-    }
+        private readonly ILogger<SerilogWarpLogger> _logger;
 
-    public Task DebugAsync(string message, Exception exception = null)
-    {
-        _logger.LogDebug(message, exception);
+        public SerilogWarpLogger(ILogger<SerilogWarpLogger> logger)
+        {
+            _logger = logger;
+        }
 
-        return Task.CompletedTask;
-    }
+        private Task LogAsync(Action<string, Exception> logAction, string message, Exception exception = null)
+        {
+            logAction(message, exception);
+            return Task.CompletedTask;
+        }
 
-    public Task InfoAsync(string message, Exception exception = null)
-    {
-        _logger.LogInformation(message, exception);
-        return Task.CompletedTask;
-    }
+        public Task DebugAsync(string message, Exception exception = null)
+        {
+            return LogAsync(_logger.LogDebug, message, exception);
+        }
 
-    public Task WarnAsync(string message, Exception exception = null)
-    {
-        _logger.LogWarning(message, exception);
-        return Task.CompletedTask;
-    }
+        public Task InfoAsync(string message, Exception exception = null)
+        {
+            return LogAsync(_logger.LogInformation, message, exception);
+        }
 
-    public Task ErrorAsync(string message, Exception exception = null)
-    {
-        _logger.LogError(message, exception);
-        return Task.CompletedTask;
+        public Task WarnAsync(string message, Exception exception = null)
+        {
+            return LogAsync(_logger.LogWarning, message, exception);
+        }
+
+        public Task ErrorAsync(string message, Exception exception = null)
+        {
+            return LogAsync(_logger.LogError, message, exception);
+        }
     }
 }
