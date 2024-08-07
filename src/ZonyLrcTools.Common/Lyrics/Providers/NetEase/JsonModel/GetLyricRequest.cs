@@ -6,7 +6,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 {
     public class GetLyricRequest
     {
-        public GetLyricRequest(long songId)
+        public GetLyricRequest(string songId)
         {
             OS = "pc";
             Id = songId;
@@ -23,7 +23,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         /// 歌曲的 SID 值。
         /// </summary>
         [JsonProperty("id")]
-        public long Id { get; }
+        public string Id { get; }
 
         [JsonProperty("lv")] public int Lv { get; }
 
