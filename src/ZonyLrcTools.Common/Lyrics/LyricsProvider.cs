@@ -19,7 +19,7 @@ namespace ZonyLrcTools.Common.Lyrics
         /// <returns>下载完成的歌曲数据。</returns>
         public virtual async ValueTask<LyricsItemCollection> DownloadAsync(string songName, string artist, string? duration = null)
         {
-            var args = new LyricsProviderArgs(songName, artist, duration ?? 0);
+            var args = new LyricsProviderArgs(songName, artist, duration);
             await ValidateAsync(args);
             var downloadDataObject = await DownloadDataAsync(args);
             return await GenerateLyricAsync(downloadDataObject, args);
@@ -36,7 +36,7 @@ namespace ZonyLrcTools.Common.Lyrics
                 throw new ErrorCodeException(ErrorCodes.SongNameIsNull, attachObj: args);
             }
 
-            if (string.IsNullOrEmpty(args.SongName) && string.IsNullOrEmpty(args.Artist))
+            if (string.IsNullOrEmpty(args.Artist))
             {
                 throw new ErrorCodeException(ErrorCodes.SongNameAndArtistIsNull, attachObj: args);
             }
