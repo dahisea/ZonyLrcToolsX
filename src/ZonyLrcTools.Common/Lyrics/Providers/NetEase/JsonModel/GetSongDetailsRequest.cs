@@ -4,14 +4,14 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
 {
     public class GetSongDetailsRequest
     {
-        public GetSongDetailsRequest(long songId)
+        public GetSongDetailsRequest(string songId)
         {
             SongId = songId;
             SongIds = $"%5B{songId}%5D";
         }
 
-        [JsonProperty("id")] public long SongId { get; }
+        [JsonProperty("id")] public string? SongId { get; }
 
-        [JsonProperty("ids")] public string SongIds { get; }
+        [JsonProperty("ids")] public string? SongIds { get; }
     }
 }
