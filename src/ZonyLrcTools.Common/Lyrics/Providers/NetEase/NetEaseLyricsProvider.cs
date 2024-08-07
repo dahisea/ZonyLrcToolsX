@@ -46,7 +46,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
 
             // 通过 MusicInfo 获取 songId
             var songId = searchResult.GetFirstMatchSongId(args.SongName, args.Duration);
-            var getLyricRequest = new GetLyricRequest(SongId);
+            var getLyricRequest = new GetLyricRequest(songId);
 
             return await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
                 requestOption: request =>
