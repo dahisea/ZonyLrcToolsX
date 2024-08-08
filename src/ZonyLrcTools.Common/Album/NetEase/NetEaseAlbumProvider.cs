@@ -1,9 +1,10 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using Newtonsoft.Json.Linq;
 using ZonyLrcTools.Common.Infrastructure.DependencyInject;
 using ZonyLrcTools.Common.Infrastructure.Exceptions;
 using ZonyLrcTools.Common.Infrastructure.Network;
 using ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel;
+using ZonyLrcTools.Common.Lyrics
 
 namespace ZonyLrcTools.Common.Album.NetEase
 {
