@@ -1,4 +1,4 @@
-﻿using System.Collections.Immutable;
+using System.Collections.Immutable;
 using System.Text;
 using Microsoft.Extensions.Options;
 using ZonyLrcTools.Common.Configuration;
@@ -89,8 +89,7 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
                 return;
             }
 
-            var newLyricsFilePath = Path.Combine(Path.GetDirectoryName(info.FilePath)!,
-                $"{Path.GetFileNameWithoutExtension(info.FilePath)}.lrc");
+            var newLyricsFilePath = $"{info.Name}_{info.Artist}.lrc";
 
             if (File.Exists(newLyricsFilePath))
             {
@@ -149,11 +148,11 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
         }
 
         var failedSongFiles = new StringBuilder();
-        failedSongFiles.AppendLine("歌曲名,歌手,路径");
+        failedSongFiles.AppendLine("歌曲名,歌手");
 
         foreach (var failedSongFile in failedSongList)
         {
-            failedSongFiles.AppendLine($"{failedSongFile.Name},{failedSongFile.Artist},{failedSongFile.FilePath}");
+            failedSongFiles.AppendLine($"{failedSongFile.Name},{failedSongFile.Artist}");
         }
 
         await File.WriteAllTextAsync(outFilePath, failedSongFiles.ToString());

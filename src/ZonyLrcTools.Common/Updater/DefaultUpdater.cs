@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Extensions.Logging;
 using ZonyLrcTools.Common.Infrastructure.DependencyInject;
@@ -9,7 +9,7 @@ namespace ZonyLrcTools.Common.Updater;
 
 public class DefaultUpdater : IUpdater, ISingletonDependency
 {
-    public const string UpdateUrl = "https://api.myzony.com/lrc-tools/update";
+    public const string UpdateUrl = "https://127.0.0.1/lrc-tools/update";
 
     private readonly IWarpHttpClient _warpHttpClient;
     private readonly ILogger<DefaultUpdater> _logger;
