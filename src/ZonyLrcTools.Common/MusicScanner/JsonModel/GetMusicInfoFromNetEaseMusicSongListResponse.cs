@@ -4,6 +4,23 @@ using Newtonsoft.Json.Linq;
 
 namespace ZonyLrcTools.Common.MusicScanner.JsonModel;
 
+public sealed class GetMusicInfoFromNetEaseMusicSongListResponse
+{
+    /// <summary>
+    /// 请求结果代码，为 200 时请求成功。
+    /// </summary>
+    [JsonProperty("code")]
+    public int Code { get; set; }
+
+    /// <summary>
+    /// 歌单信息。
+    /// </summary>
+    [JsonProperty("playlist")]
+    public PlayListModel? PlayList { get; set; }
+}
+
+
+
 public sealed class PlayListSongModel
 {
     /// <summary>
