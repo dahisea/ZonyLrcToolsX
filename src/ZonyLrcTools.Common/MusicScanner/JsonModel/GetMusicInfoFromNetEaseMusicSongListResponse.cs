@@ -46,7 +46,7 @@ public sealed class PlayListSongModel
     /// </summary>
     [JsonProperty("ar")]
     [JsonConverter(typeof(PlayListSongArtistModelJsonConverter))]
-    public ICollection<PlayListSongArtistModel>? Artists { get; set; }
+    public ICollection<PlayListSongArtistModel>? ArtistNames { get; set; }
 }
 
 public sealed class PlayListSongArtistModel
