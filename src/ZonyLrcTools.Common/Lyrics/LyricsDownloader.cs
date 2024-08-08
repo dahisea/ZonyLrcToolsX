@@ -76,49 +76,50 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
         await LogFailedSongFilesInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"歌词下载失败列表_{DateTime.Now:yyyyMMddHHmmss}.txt"), needDownloadMusicInfos);
     }
 
-    private async Task DownloadAndWriteLyricsAsync(ILyricsProvider provider, MusicInfo info)
+private async Task DownloadAndWriteLyricsAsync(ILyricsProvider provider, MusicInfo info)
+{
+    try
     {
-        try
+        var lyrics = await provider.DownloadAsync(info.Name, info.Artist, info.SongId);
+
+        if (lyrics.IsPruneMusic)
         {
-            var lyrics = await provider.DownloadAsync(info.Name, info.Artist, info.SongId);
-
-            if (lyrics.IsPruneMusic)
-            {
-                info.IsSuccessful = true;
-                info.IsPruneMusic = true;
-                return;
-            }
-
-            var newLyricsFilePath = $"{info.Name}_{info.Artist}.lrc";
-
-            if (File.Exists(newLyricsFilePath))
-            {
-                File.Delete(newLyricsFilePath);
-            }
-
-            // Write lyrics to file.
-            await using (var fileStream = new FileStream(newLyricsFilePath, FileMode.CreateNew, FileAccess.Write))
-            {
-                await using (var binaryWriter = new BinaryWriter(fileStream, Encoding.UTF8))
-                {
-                    binaryWriter.Write(Utf8ToSelectedEncoding(lyrics));
-                    binaryWriter.Flush();
-                }
-            }
-
             info.IsSuccessful = true;
+            info.IsPruneMusic = true;
+            return;
         }
-        catch (ErrorCodeException ex)
+
+        var newLyricsFilePath = $"{info.Name}_{info.Artist}.lrc";
+
+        if (File.Exists(newLyricsFilePath))
         {
-            _logger.LogWarningInfo(ex);
-            info.IsSuccessful = false;
+            File.Delete(newLyricsFilePath);
         }
-        catch (Exception ex)
+
+        // 将歌词写入文件
+        await using (var fileStream = new FileStream(newLyricsFilePath, FileMode.CreateNew, FileAccess.Write))
         {
-            await _logger.ErrorAsync($"下载歌词文件时发生错误：{ex.Message}，歌曲名: {info.Name}，歌手: {info.Artist}。");
-            info.IsSuccessful = false;
+            await using (var binaryWriter = new BinaryWriter(fileStream, Encoding.UTF8))
+            {
+                binaryWriter.Write(Utf8ToSelectedEncoding(lyrics));
+                binaryWriter.Flush();
+            }
         }
+
+        info.IsSuccessful = true;
     }
+    catch (ErrorCodeException ex)
+    {
+        _logger.LogWarningInfo(ex);
+        info.IsSuccessful = false;
+    }
+    catch (Exception ex)
+    {
+        await _logger.ErrorAsync($"下载歌词文件时发生错误：{ex.Message}，歌曲名: {info.Name}，歌手: {info.Artist}。");
+        info.IsSuccessful = false;
+    }
+}
+
 
     // Convert UTF-8 to selected encoding.
     private byte[] Utf8ToSelectedEncoding(LyricsItemCollection lyrics)

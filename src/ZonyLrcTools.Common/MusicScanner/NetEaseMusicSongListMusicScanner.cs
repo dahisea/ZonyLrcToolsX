@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -8,7 +9,6 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using QRCoder;
 using ZonyLrcTools.Common.Infrastructure.DependencyInject;
 using ZonyLrcTools.Common.Infrastructure.Encryption;
 using ZonyLrcTools.Common.Infrastructure.Exceptions;
@@ -40,7 +40,7 @@ namespace ZonyLrcTools.Common.MusicScanner
             foreach (var songListId in songListIds.Split(';'))
             {
                 _logger.LogInformation("正在获取歌单 {SongListId} 的歌曲列表。", songListId);
-                var musicInfos = await GetMusicInfoBySongIdAsync(songListId, outputDirectory, pattern);
+                var musicInfos = await GetMusicInfoBySongListIdAsync(songListId, outputDirectory, pattern);
                 musicInfoList.AddRange(musicInfos);
             }
 
@@ -57,7 +57,7 @@ namespace ZonyLrcTools.Common.MusicScanner
             }
         }
 
-        private async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string songId, string outputDirectory, string pattern)
+        private async Task<List<MusicInfo>> GetMusicInfoBySongListIdAsync(string songListId, string outputDirectory, string pattern)
         {
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
@@ -69,7 +69,7 @@ namespace ZonyLrcTools.Common.MusicScanner
                     request.Content = new FormUrlEncodedContent(HandleRequest(new
                     {
                         csrf_token = CsrfToken,
-                        id = songId,
+                        id = songListId,
                         n = 1000,
                         offset = 0,
                         total = true,
@@ -89,8 +89,7 @@ namespace ZonyLrcTools.Common.MusicScanner
                 {
                     var artistNames = song.ArtistNames;
                     var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistNames));
-                    var songId = song.SongId;
-                    return new MusicInfo(fakeFilePath, song.Name!, artistNames, songId);
+                    return new MusicInfo(fakeFilePath, song.Name!, artistNames, song.SongId);
                 }).ToList();
         }
 
@@ -125,7 +124,7 @@ namespace ZonyLrcTools.Common.MusicScanner
 
             _logger.LogInformation("请扫码登录:");
             _logger.LogInformation("\n{AsciiQrCodeString}", asciiQrCodeString);
-            _logger.LogInformation("链接");
+            _logger.LogInformation("链接:");
             _logger.LogInformation(qrCodeLink);
 
             var isLogin = false;
