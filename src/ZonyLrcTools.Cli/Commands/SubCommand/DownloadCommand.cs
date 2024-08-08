@@ -24,7 +24,6 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
             IServiceProvider serviceProvider)
         {
             _lyricsDownloader = lyricsDownloader;
-            _musicInfoLoader = musicInfoLoader;
             _serviceProvider = serviceProvider;
         }
 
@@ -36,7 +35,6 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
 
         [Option("-l|--lyric", CommandOptionType.NoValue, Description = "指定程序需要下载歌词文件。")]
         public bool DownloadLyric { get; set; }
-
 
         [Option("-n|--number", CommandOptionType.SingleValue, Description = "指定下载时候的线程数量。(默认值 1)")]
         public int ParallelNumber { get; set; } = 1;
@@ -86,12 +84,11 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
 
             return scanner switch
             {
-                MusicScannerConsts.LocalScanner => await _musicInfoLoader.LoadAsync(SongsDirectory, ParallelNumber),
                 MusicScannerConsts.CsvScanner => await _serviceProvider.GetService<CsvFileMusicScanner>()
                     .GetMusicInfoFromCsvFileAsync(CsvFilePath, OutputDirectory, OutputFileNamePattern),
                 MusicScannerConsts.NeteaseScanner => await _serviceProvider.GetService<NetEaseMusicSongListMusicScanner>()
                     .GetMusicInfoFromNetEaseMusicSongListAsync(SongListId, OutputDirectory, OutputFileNamePattern),
-                _ => await _musicInfoLoader.LoadAsync(SongsDirectory, ParallelNumber)
+                _ => throw new ArgumentException("不支持的扫描器类型。")
             };
         }
 
