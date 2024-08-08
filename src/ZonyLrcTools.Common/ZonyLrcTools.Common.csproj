@@ -14,7 +14,6 @@
         <PackageReference Include="NetEscapades.Configuration.Yaml"/>
         <PackageReference Include="Polly"/>
         <PackageReference Include="QRCoder"/>
-        <PackageReference Include="TagLibSharp"/>
         <PackageReference Include="YamlDotNet" />
     </ItemGroup>
 

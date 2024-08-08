@@ -14,7 +14,7 @@ using ZonyLrcTools.Common.MusicScanner;
 
 namespace ZonyLrcTools.Cli.Commands.SubCommand
 {
-    [Command("download", Description = "下载歌词文件或专辑图像。")]
+    [Command("download", Description = "下载歌词文件。")]
     public class DownloadCommand : ToolCommandBase
     {
         private readonly ILyricsDownloader _lyricsDownloader;
