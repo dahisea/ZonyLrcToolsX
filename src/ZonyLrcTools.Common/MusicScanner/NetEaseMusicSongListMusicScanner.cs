@@ -34,59 +34,64 @@ namespace ZonyLrcTools.Common.MusicScanner
 
         public async Task<List<MusicInfo>> GetMusicInfoFromNetEaseMusicSongListAsync(string songListIds, string outputDirectory, string pattern)
         {
+            await EnsureLoggedInAsync();
+
+            var musicInfoList = new List<MusicInfo>();
+            foreach (var songListId in songListIds.Split(';'))
+            {
+                _logger.LogInformation("正在获取歌单 {SongListId} 的歌曲列表。", songListId);
+                var musicInfos = await GetMusicInfoBySongIdAsync(songListId, outputDirectory, pattern);
+                musicInfoList.AddRange(musicInfos);
+            }
+
+            return musicInfoList;
+        }
+
+        private async Task EnsureLoggedInAsync()
+        {
             if (string.IsNullOrEmpty(Cookie))
             {
                 var loginResponse = await LoginViaQrCodeAsync();
                 Cookie = loginResponse.cookieContainer?.GetCookieHeader(new Uri(Host)) ?? string.Empty;
                 CsrfToken = loginResponse.csrfToken ?? string.Empty;
             }
+        }
 
-            async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string songId)
-            {
-                var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
-                var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
-                var response = await _warpHttpClient.PostAsync<GetMusicInfoFromNetEaseMusicSongListResponse>(
-                    $"{Host}/weapi/v6/playlist/detail?csrf_token={CsrfToken}", requestOption:
-                    request =>
-                    {
-                        request.Headers.Add("Cookie", Cookie);
-                        request.Content = new FormUrlEncodedContent(HandleRequest(new
-                        {
-                            csrf_token = CsrfToken,
-                            id = songId,
-                            n = 1000,
-                            offset = 0,
-                            total = true,
-                            limit = 1000,
-                        }, secretKey, encSecKey));
-                        request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-                    });
-
-                if (response.Code != 200 || response.PlayList?.SongList == null)
+        private async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string songId, string outputDirectory, string pattern)
+        {
+            var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
+            var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
+            var response = await _warpHttpClient.PostAsync<GetMusicInfoFromNetEaseMusicSongListResponse>(
+                $"{Host}/weapi/v6/playlist/detail?csrf_token={CsrfToken}", requestOption:
+                request =>
                 {
-                    throw new ErrorCodeException(ErrorCodes.NotSupportedFileEncoding);
-                }
-
-                return response.PlayList.SongList
-                    .Where(song => !string.IsNullOrEmpty(song.Name))
-                    .Select(song =>
+                    request.Headers.Add("Cookie", Cookie);
+                    request.Content = new FormUrlEncodedContent(HandleRequest(new
                     {
-                        var artistNames = song.ArtistNames;  // 使用新的 ArtistNames 属性
-                        var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistNames));
-                        var songId = song.SongId;
-                        return new MusicInfo(fakeFilePath, song.Name!, artistNames, songId);
-                    }).ToList();
-            }
+                        csrf_token = CsrfToken,
+                        id = songId,
+                        n = 1000,
+                        offset = 0,
+                        total = true,
+                        limit = 1000,
+                    }, secretKey, encSecKey));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+                });
 
-            var musicInfoList = new List<MusicInfo>();
-            foreach (var songListId in songListIds.Split(';'))
+            if (response.Code != 200 || response.PlayList?.SongList == null)
             {
-                _logger.LogInformation("正在获取歌单 {SongListId} 的歌曲列表。", songListId);
-                var musicInfos = await GetMusicInfoBySongIdAsync(songListId);
-                musicInfoList.AddRange(musicInfos);
+                throw new ErrorCodeException(ErrorCodes.NotSupportedFileEncoding);
             }
 
-            return musicInfoList;
+            return response.PlayList.SongList
+                .Where(song => !string.IsNullOrEmpty(song.Name))
+                .Select(song =>
+                {
+                    var artistNames = song.ArtistNames;
+                    var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistNames));
+                    var songId = song.SongId;
+                    return new MusicInfo(fakeFilePath, song.Name!, artistNames, songId);
+                }).ToList();
         }
 
         private Dictionary<string, string> HandleRequest(object srcParams, string secretKey, string encSecKey)
@@ -118,7 +123,7 @@ namespace ZonyLrcTools.Common.MusicScanner
             var qrCode = new AsciiQRCode(qrCodeData);
             var asciiQrCodeString = qrCode.GetGraphic(1, drawQuietZones: false);
 
-            _logger.LogInformation("请使用网易云 APP 扫码登录:");
+            _logger.LogInformation("请扫码登录:");
             _logger.LogInformation("\n{AsciiQrCodeString}", asciiQrCodeString);
             _logger.LogInformation("链接");
             _logger.LogInformation(qrCodeLink);
