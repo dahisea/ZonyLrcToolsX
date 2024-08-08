@@ -1,7 +1,6 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-
 namespace ZonyLrcTools.Common.MusicScanner.JsonModel;
 
 public sealed class GetMusicInfoFromNetEaseMusicSongListResponse
@@ -19,6 +18,14 @@ public sealed class GetMusicInfoFromNetEaseMusicSongListResponse
     public PlayListModel? PlayList { get; set; }
 }
 
+public sealed class PlayListModel
+{
+    /// <summary>
+    /// 歌单的歌曲列表。
+    /// </summary>
+    [JsonProperty("tracks")]
+    public ICollection<PlayListSongModel> SongList { get; set; }
+}
 
 
 public sealed class PlayListSongModel
@@ -82,4 +89,3 @@ public class PlayListSongArtistModelJsonConverter : JsonConverter
         return objectType == typeof(ICollection<PlayListSongArtistModel>);
     }
 }
-
