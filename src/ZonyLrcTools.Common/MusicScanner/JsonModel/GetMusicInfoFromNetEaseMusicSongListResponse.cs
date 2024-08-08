@@ -1,5 +1,9 @@
-namespace ZonyLrcTools.Common.MusicScanner.JsonModel
-{
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+
+
+namespace ZonyLrcTools.Common.MusicScanner.JsonModel;
+
 public sealed class PlayListSongModel
 {
     /// <summary>
@@ -27,5 +31,4 @@ public sealed class PlayListSongModel
     public string Artist => ArtistNames != null 
         ? string.Join(" ", ArtistNames.Select(a => a.Name)) 
         : string.Empty;
-}
 }
