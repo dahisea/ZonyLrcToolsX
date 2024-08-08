@@ -21,7 +21,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         /// <summary>
         /// 歌曲的 SID 值。
         /// </summary>
-        [JsonProperty("id")] public string songId { get; }
+        [JsonProperty("id")] public string SongId { get; }
 
         [JsonProperty("lv")] public int Lv { get; }
 
