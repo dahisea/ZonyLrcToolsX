@@ -50,32 +50,11 @@ public sealed class SongModel
     public string Name { get; set; }
 
     /// <summary>
-    /// 歌曲的艺术家信息，可能会有多位艺术家/歌手。
-    /// </summary>
-    [JsonProperty("ar")]
-    [JsonConverter(typeof(SongArtistModelJsonConverter))]
-    public ICollection<SongArtistModel>? Artists { get; set; }
-
-    /// <summary>
     /// 歌曲的Sid。
     /// </summary>
     [JsonProperty("id")]
     public string SongId { get; set; }
 
-    /// <summary>
-    /// 获取所有艺术家名称，用空格分隔。
-    /// </summary>
-    public string ArtistNames => Artists is not null 
-        ? string.Join(" ", Artists.Select(artist => artist.Name)) 
-        : string.Empty;
-}
-
-public sealed class SongArtistModel
-{
-    /// <summary>
-    /// 艺术家的名称。
-    /// </summary>
-    [JsonProperty("name")]
-    public string? Name { get; set; }
+ 
 }
 }
