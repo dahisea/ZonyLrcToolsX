@@ -88,9 +88,8 @@ namespace ZonyLrcTools.Common.MusicScanner
                 .Select(song =>
                 {
                     var artistNames = song.ArtistNames;
-                    var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistNames));
                     var songId = song.SongId;
-                    return new MusicInfo(fakeFilePath, song.Name!, artistNames, songId);
+                    return new MusicInfo(song.Name, artistNames, songId);
                 }).ToList();
         }
 
@@ -188,6 +187,55 @@ namespace ZonyLrcTools.Common.MusicScanner
                     request.Content = new FormUrlEncodedContent(HandleRequest(@params, secretKey, encSecKey));
                     request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
                 });
+        }
+    }
+
+    public class MusicInfo
+    {
+        public string Name { get; set; }
+        public string Artist { get; set; }
+        public string SongId { get; set; }
+        public bool IsSuccessful { get; set; }
+        public bool IsPruneMusic { get; set; }
+
+        public MusicInfo(string name, string artist, string songId)
+        {
+            Name = name;
+            Artist = artist;
+            SongId = songId;
+        }
+    }
+
+    public class GetMusicInfoFromNetEaseMusicSongListResponse
+    {
+        public int Code { get; set; }
+        public PlayListInfo PlayList { get; set; }
+    }
+
+    public class PlayListInfo
+    {
+        public List<SongInfo> SongList { get; set; }
+    }
+
+    public class SongInfo
+    {
+        public string Name { get; set; }
+        public string ArtistNames { get; set; }
+        public string SongId { get; set; }
+    }
+
+    public static class ErrorCodes
+    {
+        public const int NotSupportedFileEncoding = 1001;
+    }
+
+    public class ErrorCodeException : Exception
+    {
+        public int ErrorCode { get; }
+
+        public ErrorCodeException(int errorCode) : base($"Error code: {errorCode}")
+        {
+            ErrorCode = errorCode;
         }
     }
 }
