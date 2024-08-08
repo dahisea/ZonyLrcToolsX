@@ -128,7 +128,7 @@ namespace ZonyLrcTools.Common.MusicScanner
 
             _logger.LogInformation("请扫码登录:");
             _logger.LogInformation("\n{AsciiQrCodeString}", asciiQrCodeString);
-            _logger.LogInformation("链接");
+            _logger.LogInformation("链接:");
             _logger.LogInformation(qrCodeLink);
 
             var isLogin = false;
