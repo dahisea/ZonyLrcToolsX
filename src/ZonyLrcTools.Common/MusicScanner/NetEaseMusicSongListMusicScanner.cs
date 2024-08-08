@@ -13,7 +13,6 @@ using ZonyLrcTools.Common.Infrastructure.DependencyInject;
 using ZonyLrcTools.Common.Infrastructure.Encryption;
 using ZonyLrcTools.Common.Infrastructure.Exceptions;
 using ZonyLrcTools.Common.Infrastructure.Network;
-using ZonyLrcTools.Common.MusicScanner.JsonModel;
 
 namespace ZonyLrcTools.Common.MusicScanner
 {

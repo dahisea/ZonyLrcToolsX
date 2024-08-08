@@ -9,9 +9,6 @@ using ZonyLrcTools.Common;
 using ZonyLrcTools.Common.Lyrics;
 using ZonyLrcTools.Common.MusicScanner;
 
-// ReSharper disable UnusedAutoPropertyAccessor.Global
-// ReSharper disable MemberCanBePrivate.Global
-
 namespace ZonyLrcTools.Cli.Commands.SubCommand
 {
     [Command("download", Description = "下载歌词文件。")]
@@ -20,8 +17,7 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
         private readonly ILyricsDownloader _lyricsDownloader;
         private readonly IServiceProvider _serviceProvider;
 
-        public DownloadCommand(ILyricsDownloader lyricsDownloader,
-            IServiceProvider serviceProvider)
+        public DownloadCommand(ILyricsDownloader lyricsDownloader, IServiceProvider serviceProvider)
         {
             _lyricsDownloader = lyricsDownloader;
             _serviceProvider = serviceProvider;
