@@ -1,17 +1,3 @@
-using System.Net;
-using System.Net.Http.Headers;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using QRCoder;
-using ZonyLrcTools.Common.Infrastructure.DependencyInject;
-using ZonyLrcTools.Common.Infrastructure.Encryption;
-using ZonyLrcTools.Common.Infrastructure.Exceptions;
-using ZonyLrcTools.Common.Infrastructure.Network;
-using ZonyLrcTools.Common.MusicScanner.JsonModel;
-
-namespace ZonyLrcTools.Common.MusicScanner;
-
 public class NetEaseMusicSongListMusicScanner : ISingletonDependency
 {
     private readonly IWarpHttpClient _warpHttpClient;
@@ -68,9 +54,9 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
                 .Select(song =>
                 {
                     var artistName = song.Artists?.FirstOrDefault()?.Name ?? string.Empty;
-                    var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistName));
-                    var songId = song.SongId;
-                    return new MusicInfo(fakeFilePath, song.Name!, artistName, songId);
+                    var album = song.Album?.Name ?? string.Empty; // 如果有专辑信息
+                    var duration = song.Duration; // 如果有时长信息
+                    return new MusicInfo(song.Name!, artistName, song.SongId, album, duration);
                 }).ToList();
         }
 
@@ -116,7 +102,7 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
 
         _logger.LogInformation("请使用网易云 APP 扫码登录:");
         _logger.LogInformation("\n{AsciiQrCodeString}", asciiQrCodeString);
-        _logger.LogInformation("或者直接访问以下链接以进行登录:");
+        _logger.LogInformation("登录链接:");
         _logger.LogInformation(qrCodeLink);
 
         var isLogin = false;
