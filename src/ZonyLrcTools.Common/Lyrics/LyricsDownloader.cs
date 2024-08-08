@@ -69,8 +69,8 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
 
         await Task.WhenAll(downloadTasks);
 
-        var successfulCount = needDownloadMusicInfos.Count(m => m is { IsSuccessful: true, IsPruneMusic: false });
-        var skippedCount = needDownloadMusicInfos.Count(m => m is { IsSuccessful: true, IsPruneMusic: true });
+        var successfulCount = needDownloadMusicInfos.Count(m => m is { IsSuccessful: true, IsPureMusic: false });
+        var skippedCount = needDownloadMusicInfos.Count(m => m is { IsSuccessful: true, IsPureMusic: true });
         var failedCount = needDownloadMusicInfos.Count(m => m.IsSuccessful == false);
         await _logger.InfoAsync($"歌词数据下载完成，成功: {successfulCount} 跳过(纯音乐): {skippedCount} 失败{failedCount}。");
         await LogFailedSongFilesInfo(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"歌词下载失败列表_{DateTime.Now:yyyyMMddHHmmss}.txt"), needDownloadMusicInfos);
@@ -82,10 +82,10 @@ private async Task DownloadAndWriteLyricsAsync(ILyricsProvider provider, MusicIn
     {
         var lyrics = await provider.DownloadAsync(info.Name, info.Artist, info.SongId);
 
-        if (lyrics.IsPruneMusic)
+        if (lyrics.IsPureMusic)
         {
             info.IsSuccessful = true;
-            info.IsPruneMusic = true;
+            info.IsPureMusic = true;
             return;
         }
 

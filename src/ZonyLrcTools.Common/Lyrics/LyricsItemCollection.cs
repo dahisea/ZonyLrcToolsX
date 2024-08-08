@@ -12,7 +12,7 @@ namespace ZonyLrcTools.Common.Lyrics
         /// <summary>
         /// 是否为纯音乐，当没有任何歌词数据的时候，属性值为 True。
         /// </summary>
-        public bool IsPruneMusic => Count == 0;
+        public bool IsPureMusic => Count == 0;
 
         public GlobalLyricsConfigOptions? Options { get; }
 
@@ -23,7 +23,7 @@ namespace ZonyLrcTools.Common.Lyrics
 
         public static LyricsItemCollection operator +(LyricsItemCollection left, LyricsItemCollection right)
         {
-            if (right.IsPruneMusic)
+            if (right.IsPureMusic)
             {
                 return left;
             }
