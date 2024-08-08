@@ -1,4 +1,3 @@
-using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -18,9 +17,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
         private readonly ILyricsItemCollectionFactory _lyricsItemCollectionFactory;
         private readonly GlobalOptions _options;
 
-        private const string NetEaseSearchMusicUrl = @"https://music.163.com/weapi/search/get";
         private const string NetEaseGetLyricUrl = @"https://music.163.com/weapi/song/lyric?csrf_token=";
-
         private const string NetEaseRequestReferer = @"https://music.163.com/song?id=";
 
         public NetEaseLyricsProvider(IWarpHttpClient warpHttpClient,
@@ -37,28 +34,15 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
 
-            var searchResultResponse = await _warpHttpClient.PostAsync(NetEaseSearchMusicUrl,
+            return await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
                 requestOption: request =>
                 {
                     request.Headers.Referrer = new Uri(NetEaseRequestReferer);
                     request.Content = new FormUrlEncodedContent(HandleRequest(
-                        new SongSearchRequest(args.SongName, args.Artist, _options.Provider.Lyric.GetLyricProviderOption(DownloaderName).Depth),
+                        new GetLyricRequest(args.SongId), // 直接使用 songId 获取歌词
                         secretKey,
                         encSecKey));
                 });
-
-            var searchResult = JsonConvert.DeserializeObject<SongSearchResponse>(await searchResultResponse.Content.ReadAsStringAsync());
-            ValidateSongSearchResponse(searchResult, args);
-
-            var lyricResponse = await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
-                requestOption: request =>
-                {
-                    request.Headers.Referrer = new Uri(NetEaseRequestReferer);
-                    request.Content = new FormUrlEncodedContent(HandleRequest(
-                        new GetLyricRequest(args.SongId), secretKey, encSecKey));
-                });
-
-            return await lyricResponse.Content.ReadAsStringAsync();
         }
 
         protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject, LyricsProviderArgs args)
@@ -79,19 +63,6 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
             return _lyricsItemCollectionFactory.Build(
                 json.OriginalLyric.Text,
                 json.TranslationLyric?.Text);
-        }
-
-        protected virtual void ValidateSongSearchResponse(SongSearchResponse response, LyricsProviderArgs args)
-        {
-            if (response?.StatusCode != SongSearchResponseStatusCode.Success)
-            {
-                throw new ErrorCodeException(ErrorCodes.TheReturnValueIsIllegal, attachObj: args);
-            }
-
-            if (response.Items == null || response.Items.SongCount == 0)
-            {
-                throw new ErrorCodeException(ErrorCodes.NoMatchingSong, attachObj: args);
-            }
         }
 
         private Dictionary<string, string> HandleRequest(object srcParams, string secretKey, string encSecKey)
