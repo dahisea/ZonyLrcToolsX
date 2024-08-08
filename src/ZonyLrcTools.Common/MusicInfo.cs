@@ -1,5 +1,6 @@
 public class MusicInfo
 {
+    public string FilePath { get; set; }
     public string Name { get; set; }
     public string Artist { get; set; }
     public string SongId { get; set; }
@@ -8,6 +9,7 @@ public class MusicInfo
 
     public MusicInfo(string name, string artist, string songId)
     {
+        FilePath = filePath;
         Name = name;
         Artist = artist;
         SongId = songId;
