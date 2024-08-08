@@ -36,34 +36,30 @@ namespace ZonyLrcTools.Common.MusicScanner
         {
             await EnsureLoggedInAsync();
 
-            var musicInfoList = new List<MusicInfo>();
-            foreach (var songListId in songListIds.Split(';'))
-            {
-                _logger.LogInformation("正在获取歌单 {SongListId} 的歌曲列表。", songListId);
-                var musicInfos = await GetMusicInfoBySongIdAsync(songListId, outputDirectory, pattern);
-                musicInfoList.AddRange(musicInfos);
-            }
+            var tasks = songListIds.Split(';')
+                                   .Select(id => GetMusicInfoBySongIdAsync(id, outputDirectory, pattern))
+                                   .ToList();
 
-            return musicInfoList;
+            var results = await Task.WhenAll(tasks);
+            return results.SelectMany(info => info).ToList();
         }
 
         private async Task EnsureLoggedInAsync()
         {
-            if (string.IsNullOrEmpty(Cookie))
-            {
-                var loginResponse = await LoginViaQrCodeAsync();
-                Cookie = loginResponse.cookieContainer?.GetCookieHeader(new Uri(Host)) ?? string.Empty;
-                CsrfToken = loginResponse.csrfToken ?? string.Empty;
-            }
+            if (!string.IsNullOrEmpty(Cookie)) return;
+
+            var loginResponse = await LoginViaQrCodeAsync();
+            Cookie = loginResponse.cookieContainer?.GetCookieHeader(new Uri(Host)) ?? string.Empty;
+            CsrfToken = loginResponse.csrfToken ?? string.Empty;
         }
 
         private async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string songId, string outputDirectory, string pattern)
         {
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
+
             var response = await _warpHttpClient.PostAsync<GetMusicInfoFromNetEaseMusicSongListResponse>(
-                $"{Host}/weapi/v6/playlist/detail?csrf_token={CsrfToken}", requestOption:
-                request =>
+                $"{Host}/weapi/v6/playlist/detail?csrf_token={CsrfToken}", requestOption: request =>
                 {
                     request.Headers.Add("Cookie", Cookie);
                     request.Content = new FormUrlEncodedContent(HandleRequest(new
@@ -87,11 +83,9 @@ namespace ZonyLrcTools.Common.MusicScanner
                 .Where(song => !string.IsNullOrEmpty(song.Name))
                 .Select(song =>
                 {
-                    var artist = song.Artists?.FirstOrDefault()?.Name ?? string.Empty;
-                    var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistName));
-                    var songId = song.SongId;
-                    var name = song.Name!;
-                    return new MusicInfo(name, artist, songId);
+                    var artistNames = song.ArtistNames;
+                    var filePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistNames));
+                    return new MusicInfo(filePath, song.Name, artistNames, song.SongId);
                 }).ToList();
         }
 
