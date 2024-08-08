@@ -22,6 +22,7 @@ namespace ZonyLrcTools.Common.MusicScanner
         private readonly IWarpHttpClient _warpHttpClient;
         private readonly ILogger<NetEaseMusicSongListMusicScanner> _logger;
         private const string Host = "https://music.163.com";
+        private static readonly object _lock = new object();  // 添加锁对象
 
         private string Cookie { get; set; } = string.Empty;
         private string CsrfToken { get; set; } = string.Empty;
@@ -46,11 +47,22 @@ namespace ZonyLrcTools.Common.MusicScanner
 
         private async Task EnsureLoggedInAsync()
         {
-            if (!string.IsNullOrEmpty(Cookie)) return;
+            // 使用锁防止并发访问登录逻辑
+            lock (_lock)
+            {
+                if (!string.IsNullOrEmpty(Cookie)) return;
+            }
 
             var loginResponse = await LoginViaQrCodeAsync();
-            Cookie = loginResponse.cookieContainer?.GetCookieHeader(new Uri(Host)) ?? string.Empty;
-            CsrfToken = loginResponse.csrfToken ?? string.Empty;
+
+            lock (_lock)
+            {
+                if (string.IsNullOrEmpty(Cookie))
+                {
+                    Cookie = loginResponse.cookieContainer?.GetCookieHeader(new Uri(Host)) ?? string.Empty;
+                    CsrfToken = loginResponse.csrfToken ?? string.Empty;
+                }
+            }
         }
 
         private async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string songId, string outputDirectory, string pattern)
@@ -83,9 +95,10 @@ namespace ZonyLrcTools.Common.MusicScanner
                 .Where(song => !string.IsNullOrEmpty(song.Name))
                 .Select(song =>
                 {
-                    var filePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", song.Artist));
+                    var artistName = song.Artists?.FirstOrDefault()?.Name ?? string.Empty;
+                    var filePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistName));
                     var songId = song.SongId;
-                    return new MusicInfo(filePath, song.Name, song.Artist, songId);
+                    return new MusicInfo(filePath, song.Name, artistName, songId);
                 }).ToList();
         }
 
