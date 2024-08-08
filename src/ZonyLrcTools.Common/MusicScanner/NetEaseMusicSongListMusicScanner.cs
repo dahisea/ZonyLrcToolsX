@@ -13,6 +13,7 @@ using ZonyLrcTools.Common.Infrastructure.DependencyInject;
 using ZonyLrcTools.Common.Infrastructure.Encryption;
 using ZonyLrcTools.Common.Infrastructure.Exceptions;
 using ZonyLrcTools.Common.Infrastructure.Network;
+using ZonyLrcTools.Common.MusicScanner.JsonModel;
 
 namespace ZonyLrcTools.Common.MusicScanner
 {
@@ -39,8 +40,15 @@ namespace ZonyLrcTools.Common.MusicScanner
             foreach (var songListId in songListIds.Split(';'))
             {
                 _logger.LogInformation("正在获取歌单 {SongListId} 的歌曲列表。", songListId);
-                var musicInfos = await GetMusicInfoBySongIdAsync(songListId, outputDirectory, pattern);
-                musicInfoList.AddRange(musicInfos);
+                try
+                {
+                    var musicInfos = await GetMusicInfoBySongIdAsync(songListId, outputDirectory, pattern);
+                    musicInfoList.AddRange(musicInfos);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error while fetching music info for song list ID {SongListId}", songListId);
+                }
             }
 
             return musicInfoList;
@@ -79,17 +87,14 @@ namespace ZonyLrcTools.Common.MusicScanner
 
             if (response.Code != 200 || response.PlayList?.SongList == null)
             {
+                _logger.LogError("Failed to fetch music info for song ID {SongId}. Response code: {Code}", songId, response.Code);
                 throw new ErrorCodeException(ErrorCodes.NotSupportedFileEncoding);
             }
 
             return response.PlayList.SongList
                 .Where(song => !string.IsNullOrEmpty(song.Name))
-                .Select(song =>
-                {
-                    var artistNames = song.ArtistNames;
-                    var songId = song.SongId;
-                    return new MusicInfo(song.Name, artistNames, songId);
-                }).ToList();
+                .Select(song => new MusicInfo(song.Name, song.ArtistNames, song.SongId))
+                .ToList();
         }
 
         private Dictionary<string, string> HandleRequest(object srcParams, string secretKey, string encSecKey)
