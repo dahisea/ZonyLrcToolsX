@@ -32,3 +32,37 @@ public sealed class PlayListSongModel
         ? string.Join(" ", ArtistNames.Select(a => a.Name)) 
         : string.Empty;
 }
+
+public sealed class PlayListSongArtistModel
+{
+    /// <summary>
+    /// 艺术家的名称。
+    /// </summary>
+    [JsonProperty("name")]
+    public string? Name { get; set; }
+}
+
+public class PlayListSongArtistModelJsonConverter : JsonConverter
+{
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        throw new NotImplementedException();
+    }
+
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+    {
+        var token = JToken.Load(reader);
+        return token.Type switch
+        {
+            JTokenType.Array => token.ToObject(objectType),
+            JTokenType.Object => new List<PlayListSongArtistModel> { token.ToObject<PlayListSongArtistModel>()! },
+            _ => null
+        };
+    }
+
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType == typeof(ICollection<PlayListSongArtistModel>);
+    }
+}
+
