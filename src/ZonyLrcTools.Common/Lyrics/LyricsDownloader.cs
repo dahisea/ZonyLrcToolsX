@@ -80,7 +80,7 @@ public class LyricsDownloader : ILyricsDownloader, ISingletonDependency
     {
         try
         {
-            var lyrics = await provider.DownloadAsync(info.Name, info.Artist);
+            var lyrics = await provider.DownloadAsync(info.Name, info.Artist, info.SongId);
 
             if (lyrics.IsPruneMusic)
             {

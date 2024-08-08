@@ -15,15 +15,6 @@ public partial class MusicInfo
     /// </summary>
     public string SongId { get; set; }
 
-    /// <summary>
-    /// 歌曲的专辑（如果需要）。
-    /// </summary>
-    public string Album { get; set; }
-
-    /// <summary>
-    /// 歌曲的时长（如果需要）。
-    /// </summary>
-    public long? Duration { get; set; }
 
     /// <summary>
     /// 是否下载成功？
@@ -40,8 +31,6 @@ public partial class MusicInfo
         Name = name;
         Artist = artist;
         SongId = songId;
-        Album = album;
-        Duration = duration;
     }
 
     public static bool operator ==(MusicInfo? left, MusicInfo? right)
