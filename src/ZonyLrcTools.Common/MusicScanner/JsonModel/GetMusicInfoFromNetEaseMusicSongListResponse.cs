@@ -26,7 +26,7 @@ namespace ZonyLrcTools.Common.MusicScanner.JsonModel
         // 将艺术家信息序列化为字符串，用空格分隔
         [JsonProperty("ar")]
         [JsonConverter(typeof(PlayListSongArtistModelJsonConverter))]
-        public string ArtistNames { get; set; } = string.Empty;
+        public string Artist { get; set; } = string.Empty;
 
         [JsonProperty("id")]
         public string? SongId { get; set; }
@@ -67,14 +67,14 @@ namespace ZonyLrcTools.Common.MusicScanner.JsonModel
             {
                 var artists = token.ToObject<ICollection<PlayListSongArtistModel>>();
                 return artists is not null 
-                    ? string.Join(" ", artists.Select(artist => artist.Name).Where(name => !string.IsNullOrEmpty(name))) 
+                    ? string.Join(" ", artists.Select(artist => artistraw.Name).Where(name => !string.IsNullOrEmpty(name))) 
                     : string.Empty;
             }
 
             if (token.Type == JTokenType.Object)
             {
                 var artist = token.ToObject<PlayListSongArtistModel>();
-                return artist?.Name ?? string.Empty;
+                return artistraw?.Name ?? string.Empty;
             }
 
             return string.Empty;
