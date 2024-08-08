@@ -18,11 +18,9 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
     public class DownloadCommand : ToolCommandBase
     {
         private readonly ILyricsDownloader _lyricsDownloader;
-        private readonly IMusicInfoLoader _musicInfoLoader;
         private readonly IServiceProvider _serviceProvider;
 
         public DownloadCommand(ILyricsDownloader lyricsDownloader,
-            IMusicInfoLoader musicInfoLoader,
             IServiceProvider serviceProvider)
         {
             _lyricsDownloader = lyricsDownloader;
