@@ -3,6 +3,10 @@ name: Build
 on:
   watch:
     types: [started]
+    
+  push:
+    branches:
+      - dev
 
 jobs:
   build:
@@ -21,12 +25,10 @@ jobs:
       run: |
         cd ${{ github.workspace }}/src/ZonyLrcTools.Cli
         dotnet run download -sc netease -o "${{ github.workspace }}/lyric/" -s "${{ secrets.playlist }}" -l
-
     - name: Archive output
       run: |
         cd ${{ github.workspace }}
         zip -r lyric.zip lyric/
-
     - name: Upload artifact
       uses: actions/upload-artifact@v4
       with:
