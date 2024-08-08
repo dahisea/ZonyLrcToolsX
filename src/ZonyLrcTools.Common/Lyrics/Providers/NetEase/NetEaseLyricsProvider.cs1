@@ -17,8 +17,8 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
         private readonly ILyricsItemCollectionFactory _lyricsItemCollectionFactory;
         private readonly GlobalOptions _options;
 
-        private const string NetEaseGetLyricUrl = "https://music.163.com/weapi/song/lyric?csrf_token=";
-        private const string NetEaseRequestReferer = "https://music.163.com";
+        private const string NetEaseGetLyricUrl = @"https://music.163.com/weapi/song/lyric?csrf_token=";
+        private const string NetEaseRequestReferer = @"https://music.163.com/song?id=";
 
         public NetEaseLyricsProvider(IWarpHttpClient warpHttpClient,
             ILyricsItemCollectionFactory lyricsItemCollectionFactory,
@@ -34,22 +34,15 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
 
-            try
-            {
-                return await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
-                    requestOption: request =>
-                    {
-                        request.Headers.Referrer = new Uri(NetEaseRequestReferer);
-                        request.Content = new FormUrlEncodedContent(HandleRequest(
-                            new GetLyricRequest(args.SongId),
-                            secretKey,
-                            encSecKey));
-                    });
-            }
-            catch (Exception ex)
-            {
-                throw new NetworkException("Failed to download lyrics data.", ex);
-            }
+            return await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
+                requestOption: request =>
+                {
+                    request.Headers.Referrer = new Uri(NetEaseRequestReferer);
+                    request.Content = new FormUrlEncodedContent(HandleRequest(
+                        new GetLyricRequest(args.SongId), // 直接使用 songId 获取歌词
+                        secretKey,
+                        encSecKey));
+                });
         }
 
         protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject, LyricsProviderArgs args)
