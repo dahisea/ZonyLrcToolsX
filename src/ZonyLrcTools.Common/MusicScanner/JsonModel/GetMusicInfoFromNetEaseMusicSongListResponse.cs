@@ -1,32 +1,3 @@
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-
-namespace ZonyLrcTools.Common.MusicScanner.JsonModel;
-
-public sealed class GetMusicInfoFromNetEaseMusicSongListResponse
-{
-    /// <summary>
-    /// 请求结果代码，为 200 时请求成功。
-    /// </summary>
-    [JsonProperty("code")]
-    public int Code { get; set; }
-
-    /// <summary>
-    /// 歌单信息。
-    /// </summary>
-    [JsonProperty("playlist")]
-    public PlayListModel? PlayList { get; set; }
-}
-
-public sealed class PlayListModel
-{
-    /// <summary>
-    /// 歌单的歌曲列表。
-    /// </summary>
-    [JsonProperty("tracks")]
-    public ICollection<PlayListSongModel>? SongList { get; set; }
-}
-
 public sealed class PlayListSongModel
 {
     /// <summary>
@@ -47,37 +18,11 @@ public sealed class PlayListSongModel
     [JsonProperty("ar")]
     [JsonConverter(typeof(PlayListSongArtistModelJsonConverter))]
     public ICollection<PlayListSongArtistModel>? ArtistNames { get; set; }
-}
 
-public sealed class PlayListSongArtistModel
-{
     /// <summary>
-    /// 艺术家的名称。
+    /// 获取以空格分隔的艺术家名称字符串。
     /// </summary>
-    [JsonProperty("name")]
-    public string? Name { get; set; }
-}
-
-public class PlayListSongArtistModelJsonConverter : JsonConverter
-{
-    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-    {
-        var token = JToken.Load(reader);
-        return token.Type switch
-        {
-            JTokenType.Array => token.ToObject(objectType),
-            JTokenType.Object => new List<PlayListSongArtistModel> { token.ToObject<PlayListSongArtistModel>()! },
-            _ => null
-        };
-    }
-
-    public override bool CanConvert(Type objectType)
-    {
-        return objectType == typeof(ICollection<PlayListSongArtistModel>);
-    }
+    public string Artist => ArtistNames != null 
+        ? string.Join(" ", ArtistNames.Select(a => a.Name)) 
+        : string.Empty;
 }
