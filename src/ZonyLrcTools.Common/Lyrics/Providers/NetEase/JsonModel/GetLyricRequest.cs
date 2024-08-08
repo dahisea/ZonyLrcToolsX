@@ -16,13 +16,12 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         /// <summary>
         /// 请求的操作系统。
         /// </summary>
-        [JsonProperty("os")]
-        public string OS { get; }
+        [JsonProperty("os")] public string OS { get; }
 
         /// <summary>
         /// 歌曲的 SID 值。
         /// </summary>
-        [JsonProperty("id")] public string? Id { get; }
+        [JsonProperty("id")] public string songId { get; }
 
         [JsonProperty("lv")] public int Lv { get; }
 
