@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -8,6 +7,7 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using QRCoder;
 using ZonyLrcTools.Common.Infrastructure.DependencyInject;
 using ZonyLrcTools.Common.Infrastructure.Encryption;
@@ -23,8 +23,8 @@ namespace ZonyLrcTools.Common.MusicScanner
         private readonly ILogger<NetEaseMusicSongListMusicScanner> _logger;
         private const string Host = "https://music.163.com";
 
-        private string _cookie = string.Empty;
-        private string _csrfToken = string.Empty;
+        private string Cookie { get; set; } = string.Empty;
+        private string CsrfToken { get; set; } = string.Empty;
 
         public NetEaseMusicSongListMusicScanner(IWarpHttpClient warpHttpClient, ILogger<NetEaseMusicSongListMusicScanner> logger)
         {
@@ -40,7 +40,7 @@ namespace ZonyLrcTools.Common.MusicScanner
             foreach (var songListId in songListIds.Split(';'))
             {
                 _logger.LogInformation("正在获取歌单 {SongListId} 的歌曲列表。", songListId);
-                var musicInfos = await GetMusicInfoBySongListIdAsync(songListId, outputDirectory, pattern);
+                var musicInfos = await GetMusicInfoBySongIdAsync(songListId, outputDirectory, pattern);
                 musicInfoList.AddRange(musicInfos);
             }
 
@@ -49,36 +49,36 @@ namespace ZonyLrcTools.Common.MusicScanner
 
         private async Task EnsureLoggedInAsync()
         {
-            if (string.IsNullOrEmpty(_cookie))
+            if (string.IsNullOrEmpty(Cookie))
             {
                 var loginResponse = await LoginViaQrCodeAsync();
-                _csrfToken = loginResponse.CsrfToken ?? string.Empty;
-                _cookie = loginResponse.CookieContainer?.GetCookieHeader(new Uri(Host)) ?? string.Empty;
-
-                if (string.IsNullOrEmpty(_cookie) || string.IsNullOrEmpty(_csrfToken))
-                {
-                    throw new Exception("登录失败，无法获取必要的 Cookie 和 CSRF 令牌。");
-                }
+                Cookie = loginResponse.cookieContainer?.GetCookieHeader(new Uri(Host)) ?? string.Empty;
+                CsrfToken = loginResponse.csrfToken ?? string.Empty;
             }
         }
 
-        private async Task<List<MusicInfo>> GetMusicInfoBySongListIdAsync(string songListId, string outputDirectory, string pattern)
+        private async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string songId, string outputDirectory, string pattern)
         {
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
-            var response = await PostAsync<GetMusicInfoFromNetEaseMusicSongListResponse>(
-                $"{Host}/weapi/v6/playlist/detail?csrf_token={_csrfToken}",
-                new
+            var response = await _warpHttpClient.PostAsync<GetMusicInfoFromNetEaseMusicSongListResponse>(
+                $"{Host}/weapi/v6/playlist/detail?csrf_token={CsrfToken}", requestOption:
+                request =>
                 {
-                    csrf_token = _csrfToken,
-                    id = songListId,
-                    n = 1000,
-                    offset = 0,
-                    total = true,
-                    limit = 1000,
+                    request.Headers.Add("Cookie", Cookie);
+                    request.Content = new FormUrlEncodedContent(HandleRequest(new
+                    {
+                        csrf_token = CsrfToken,
+                        id = songId,
+                        n = 1000,
+                        offset = 0,
+                        total = true,
+                        limit = 1000,
+                    }, secretKey, encSecKey));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
                 });
 
-            if (response?.Code != 200 || response.PlayList?.SongList == null)
+            if (response.Code != 200 || response.PlayList?.SongList == null)
             {
                 throw new ErrorCodeException(ErrorCodes.NotSupportedFileEncoding);
             }
@@ -89,7 +89,8 @@ namespace ZonyLrcTools.Common.MusicScanner
                 {
                     var artistNames = song.ArtistNames;
                     var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistNames));
-                    return new MusicInfo(song.Name!, artistNames, song.SongId);
+                    var songId = song.SongId;
+                    return new MusicInfo(fakeFilePath, song.Name!, artistNames, songId);
                 }).ToList();
         }
 
@@ -106,65 +107,17 @@ namespace ZonyLrcTools.Common.MusicScanner
             };
         }
 
-        private async Task<LoginResponse> LoginViaQrCodeAsync()
+        private async Task<(string? csrfToken, CookieContainer? cookieContainer)> LoginViaQrCodeAsync()
         {
-            var qrCodeKeyResponse = await PostAsync<LoginQrCodeKeyResponse>($"{Host}/weapi/login/qrcode/unikey", new { type = 1 });
-            var uniKey = qrCodeKeyResponse?.Unikey;
-
-            if (string.IsNullOrEmpty(uniKey)) return new LoginResponse { CsrfToken = null, CookieContainer = null };
+            var qrCodeKeyJson = await (await PostAsync($"{Host}/weapi/login/qrcode/unikey", new
+            {
+                type = 1
+            })).Content.ReadAsStringAsync();
+            var uniKey = JObject.Parse(qrCodeKeyJson).SelectToken("$.unikey")!.Value<string>();
+            if (string.IsNullOrEmpty(uniKey)) return (null, null);
 
             var qrCodeLink = $"{Host}/login?codekey={uniKey}";
 
-            DisplayQrCode(qrCodeLink);
-
-            while (true)
-            {
-                var checkLoginResponse = await CheckIsLoginAsync(uniKey);
-                if (checkLoginResponse.IsSuccess)
-                {
-                    return new LoginResponse
-                    {
-                        CsrfToken = checkLoginResponse.CsrfToken,
-                        CookieContainer = checkLoginResponse.CookieContainer
-                    };
-                }
-                await Task.Delay(2000);
-            }
-        }
-
-        private async Task<CheckLoginResponse> CheckIsLoginAsync(string uniKey)
-        {
-            var response = await PostAsync<CheckLoginResponse>($"{Host}/weapi/login/qrcode/client/login", new { key = uniKey, type = 1 });
-            var responseCode = response?.Code;
-
-            if (responseCode != 803) return new CheckLoginResponse { IsSuccess = false, CsrfToken = null, CookieContainer = null };
-
-            return new CheckLoginResponse
-            {
-                IsSuccess = true,
-                CsrfToken = response.CsrfToken,
-                CookieContainer = response.CookieContainer
-            };
-        }
-
-        private async Task<T> PostAsync<T>(string url, object parameters)
-        {
-            var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
-            var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
-
-            var response = await _warpHttpClient.PostReturnHttpResponseAsync(url, requestOption: request =>
-            {
-                request.Content = new FormUrlEncodedContent(HandleRequest(parameters, secretKey, encSecKey));
-                request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
-                request.Headers.Add("Cookie", _cookie);
-            });
-
-            var jsonString = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<T>(jsonString)!;
-        }
-
-        private void DisplayQrCode(string qrCodeLink)
-        {
             var qrGenerator = new QRCodeGenerator();
             var qrCodeData = qrGenerator.CreateQrCode(qrCodeLink, QRCodeGenerator.ECCLevel.L);
             var qrCode = new AsciiQRCode(qrCodeData);
@@ -172,28 +125,69 @@ namespace ZonyLrcTools.Common.MusicScanner
 
             _logger.LogInformation("请扫码登录:");
             _logger.LogInformation("\n{AsciiQrCodeString}", asciiQrCodeString);
-            _logger.LogInformation("链接: {QrCodeLink}", qrCodeLink);
+            _logger.LogInformation("链接");
+            _logger.LogInformation(qrCodeLink);
+
+            var isLogin = false;
+            while (!isLogin)
+            {
+                var (isSuccess, cookieContainer) = await CheckIsLoginAsync(uniKey);
+                isLogin = isSuccess;
+
+                if (!isLogin)
+                {
+                    await Task.Delay(2000);
+                }
+                else
+                {
+                    return (cookieContainer?.GetCookies(new Uri(Host))["__csrf"]?.Value, cookieContainer);
+                }
+            }
+
+            return (null, null);
         }
-    }
 
-    // Helper classes to match the expected structure for responses
-    public class LoginResponse
-    {
-        public string? CsrfToken { get; set; }
-        public CookieContainer? CookieContainer { get; set; }
-    }
+        private async Task<(bool isSuccess, CookieContainer? cookieContainer)> CheckIsLoginAsync(string uniKey)
+        {
+            var responseMessage = await PostAsync($"{Host}/weapi/login/qrcode/client/login", new
+            {
+                key = uniKey,
+                type = 1
+            });
 
-    public class CheckLoginResponse
-    {
-        public bool IsSuccess { get; set; }
-        public string? CsrfToken { get; set; }
-        public CookieContainer? CookieContainer { get; set; }
-        public int? Code { get; set; } // Add this property to match the response structure
-    }
+            var responseString = await responseMessage.Content.ReadAsStringAsync();
+            var responseCode = JObject.Parse(responseString)["code"]?.Value<int>();
 
-    public class LoginQrCodeKeyResponse
-    {
-        [JsonProperty("unikey")]
-        public string? Unikey { get; set; }
+            if (responseCode != 803)
+            {
+                return (false, null);
+            }
+
+            if (!responseMessage.Headers.TryGetValues("Set-Cookie", out var cookies))
+            {
+                return (false, null);
+            }
+
+            var cookieContainer = new CookieContainer();
+            foreach (var cookie in cookies)
+            {
+                cookieContainer.SetCookies(new Uri(Host), cookie);
+            }
+
+            return (true, cookieContainer);
+        }
+
+        private async Task<HttpResponseMessage> PostAsync(string url, object @params)
+        {
+            var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
+            var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
+
+            return await _warpHttpClient.PostReturnHttpResponseAsync(url, requestOption:
+                request =>
+                {
+                    request.Content = new FormUrlEncodedContent(HandleRequest(@params, secretKey, encSecKey));
+                    request.Content.Headers.ContentType = new MediaTypeHeaderValue("application/x-www-form-urlencoded");
+                });
+        }
     }
 }
