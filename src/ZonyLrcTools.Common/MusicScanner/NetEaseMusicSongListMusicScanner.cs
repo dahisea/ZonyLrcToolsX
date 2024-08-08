@@ -71,7 +71,7 @@ namespace ZonyLrcTools.Common.MusicScanner
                     .Where(song => !string.IsNullOrEmpty(song.Name))
                     .Select(song =>
                     {
-                        var artistName = song.Artists?.FirstOrDefault()?.Name ?? string.Empty;
+                        var artistName = song.Artists;
                         var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistName));
                         var songId = song.SongId;
                         return new MusicInfo(fakeFilePath, song.Name!, artistName, songId);

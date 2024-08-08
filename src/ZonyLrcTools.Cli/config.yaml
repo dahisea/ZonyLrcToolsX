@@ -42,15 +42,7 @@ provider:
         depth: 30       # 搜索深度，值越大搜索结果越多，但搜索时间越长。
         additional:
           isEnableRomanOutput: true # 是否启用罗马音输出，本参数仅当对应歌曲有罗马音歌词时有效。
-      - name: QQ        # 基于 QQ 音乐的歌词下载器。
-        priority: -1
-        # depth: 10     # 暂时不支持。
-      - name: KuGou     # 基于酷狗音乐的歌词下载器。
-        priority: -1
-        depth: 10
-      - name: KuWo      # 基于酷我音乐的歌词下载器。
-        priority: -1
-        depth: 10
+
     # 歌词下载的一些共有配置参数。
     config:
       isOneLine: true                 # 双语歌词是否合并为一行展示。

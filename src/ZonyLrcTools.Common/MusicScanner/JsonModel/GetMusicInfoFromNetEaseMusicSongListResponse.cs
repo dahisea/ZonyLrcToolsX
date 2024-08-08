@@ -24,7 +24,7 @@ public sealed class PlayListModel
     /// 歌单的歌曲列表。
     /// </summary>
     [JsonProperty("tracks")]
-    public ICollection<PlayListSongModel>? SongList { get; set; }
+    public ICollection<PlayListSongModel> SongList { get; set; }
 }
 
 public sealed class PlayListSongModel
@@ -33,10 +33,10 @@ public sealed class PlayListSongModel
     /// 歌曲的名称。
     /// </summary>
     [JsonProperty("name")]
-    public string? Name { get; set; }
+    public string Name { get; set; }
 
     /// <summary>
-    /// 歌曲的id。
+    /// 歌曲的Sid。
     /// </summary>
     [JsonProperty("id")]
     public string SongId { get; set; }
