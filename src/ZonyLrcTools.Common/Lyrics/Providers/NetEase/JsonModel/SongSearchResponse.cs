@@ -96,3 +96,5 @@ public class SongArtistModelJsonConverter : JsonConverter
             _ => null
         };
     }
+}
+}
