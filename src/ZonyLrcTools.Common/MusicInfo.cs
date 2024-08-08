@@ -26,11 +26,11 @@ namespace ZonyLrcTools.Common
         /// 歌曲的作者。
         /// </summary>
         public string Artist { get; set; }
-        
+
         /// <summary>
         /// 歌曲的Sid。
         /// </summary>
-        public string songId { get; set; }
+        public string SongId { get; set; }
 
         /// <summary>
         /// 是否下载成功?
@@ -48,11 +48,13 @@ namespace ZonyLrcTools.Common
         /// <param name="filePath">歌曲对应的物理文件路径。</param>
         /// <param name="name">歌曲的名称。</param>
         /// <param name="artist">歌曲的作者。</param>
-        public MusicInfo(string filePath, string name, string artist)
+        /// <param name="songId">歌曲的Sid。</param>
+        public MusicInfo(string filePath, string name, string artist, string songId)
         {
             FilePath = Path.Combine(Path.GetDirectoryName(filePath)!, HandleInvalidFilePath(Path.GetFileName(filePath)));
             Name = name;
             Artist = artist;
+            SongId = songId;
         }
 
         /// <summary>
