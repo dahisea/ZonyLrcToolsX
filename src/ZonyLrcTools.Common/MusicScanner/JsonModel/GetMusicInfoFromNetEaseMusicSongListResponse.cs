@@ -1,88 +1,83 @@
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
-namespace ZonyLrcTools.Common.MusicScanner.JsonModel
+namespace ZonyLrcTools.Common.MusicScanner.JsonModel;
+
+public sealed class GetMusicInfoFromNetEaseMusicSongListResponse
 {
-    public sealed class GetMusicInfoFromNetEaseMusicSongListResponse
-    {
-        [JsonProperty("code")]
-        public int Code { get; set; }
+    /// <summary>
+    /// 请求结果代码，为 200 时请求成功。
+    /// </summary>
+    [JsonProperty("code")]
+    public int Code { get; set; }
 
-        [JsonProperty("playlist")]
-        public PlayListModel? PlayList { get; set; }
+    /// <summary>
+    /// 歌单信息。
+    /// </summary>
+    [JsonProperty("playlist")]
+    public PlayListModel? PlayList { get; set; }
+}
+
+public sealed class PlayListModel
+{
+    /// <summary>
+    /// 歌单的歌曲列表。
+    /// </summary>
+    [JsonProperty("tracks")]
+    public ICollection<PlayListSongModel>? SongList { get; set; }
+}
+
+public sealed class PlayListSongModel
+{
+    /// <summary>
+    /// 歌曲的名称。
+    /// </summary>
+    [JsonProperty("name")]
+    public string? Name { get; set; }
+
+    /// <summary>
+    /// 歌曲的id。
+    /// </summary>
+    [JsonProperty("id")]
+    public string SongId { get; set; }
+    
+    /// <summary>
+    /// 歌曲的艺术家信息，可能会有多位艺术家/歌手。
+    /// </summary>
+    [JsonProperty("ar")]
+    [JsonConverter(typeof(PlayListSongArtistModelJsonConverter))]
+    public ICollection<PlayListSongArtistModel>? Artists { get; set; }
+}
+
+public sealed class PlayListSongArtistModel
+{
+    /// <summary>
+    /// 艺术家的名称。
+    /// </summary>
+    [JsonProperty("name")]
+    public string? Name { get; set; }
+}
+
+public class PlayListSongArtistModelJsonConverter : JsonConverter
+{
+    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+    {
+        throw new NotImplementedException();
     }
 
-    public sealed class PlayListModel
+    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
-        [JsonProperty("tracks")]
-        public ICollection<PlayListSongModel>? SongList { get; set; }
-    }
-
-    public sealed class PlayListSongModel
-    {
-        [JsonProperty("name")]
-        public string? Name { get; set; }
-
-        // 将艺术家信息序列化为字符串，用空格分隔
-        [JsonProperty("ar")]
-        [JsonConverter(typeof(PlayListSongArtistModelJsonConverter))]
-        public string Artist { get; set; } = string.Empty;
-
-        [JsonProperty("id")]
-        public string? SongId { get; set; }
-    }
-
-    public sealed class PlayListSongArtistModel
-    {
-        [JsonProperty("name")]
-        public string? Name { get; set; }
-    }
-
-    public class PlayListSongArtistModelJsonConverter : JsonConverter
-    {
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        var token = JToken.Load(reader);
+        return token.Type switch
         {
-            // 序列化为艺术家名称的数组
-            writer.WriteStartArray();
-            if (value is string artistNames)
-            {
-                var names = artistNames.Split(' ');
-                foreach (var name in names)
-                {
-                    serializer.Serialize(writer, new PlayListSongArtistModel { Name = name });
-                }
-            }
-            writer.WriteEndArray();
-        }
+            JTokenType.Array => token.ToObject(objectType),
+            JTokenType.Object => new List<PlayListSongArtistModel> { token.ToObject<PlayListSongArtistModel>()! },
+            _ => null
+        };
+    }
 
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null)
-            {
-                return string.Empty;
-            }
-
-            var token = JToken.Load(reader);
-            if (token.Type == JTokenType.Array)
-            {
-                var artists = token.ToObject<ICollection<PlayListSongArtistModel>>();
-                return artists is not null 
-                    ? string.Join(" ", artists.Select(artist => artistraw.Name).Where(name => !string.IsNullOrEmpty(name))) 
-                    : string.Empty;
-            }
-
-            if (token.Type == JTokenType.Object)
-            {
-                var artist = token.ToObject<PlayListSongArtistModel>();
-                return artistraw?.Name ?? string.Empty;
-            }
-
-            return string.Empty;
-        }
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof(string);
-        }
+    public override bool CanConvert(Type objectType)
+    {
+        return objectType == typeof(ICollection<PlayListSongArtistModel>);
     }
 }
