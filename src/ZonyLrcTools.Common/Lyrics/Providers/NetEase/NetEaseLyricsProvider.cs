@@ -46,10 +46,6 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
                             encSecKey));
                     });
             }
-            catch (Exception ex)
-            {
-                throw new NetworkException("Failed to download lyrics data.", ex);
-            }
         }
 
         protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject, LyricsProviderArgs args)
