@@ -64,7 +64,7 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
             if (DownloadLyric)
             {
                 var musicInfos = await GetMusicInfosAsync(Scanner);
-                var musicInfosConverted = musicInfos.Select(m => new MusicInfo(m.Name, m.Artist, m.SongId)).ToList();
+                var musicInfosConverted = musicInfos.Select(m => new MusicInfo(m.FilePath, m.Name, m.Artist, m.SongId)).ToList();
                 await _lyricsDownloader.DownloadAsync(musicInfosConverted, ParallelNumber);
             }
 
