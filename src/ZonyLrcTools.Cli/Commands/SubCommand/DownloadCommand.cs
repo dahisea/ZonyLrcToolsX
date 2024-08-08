@@ -6,7 +6,6 @@ using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
 using ZonyLrcTools.Cli.Infrastructure.MusicScannerOptions;
 using ZonyLrcTools.Common;
-using ZonyLrcTools.Common.Album;
 using ZonyLrcTools.Common.Lyrics;
 using ZonyLrcTools.Common.MusicScanner;
 
@@ -19,18 +18,15 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
     public class DownloadCommand : ToolCommandBase
     {
         private readonly ILyricsDownloader _lyricsDownloader;
-        private readonly IAlbumDownloader _albumDownloader;
         private readonly IMusicInfoLoader _musicInfoLoader;
         private readonly IServiceProvider _serviceProvider;
 
         public DownloadCommand(ILyricsDownloader lyricsDownloader,
             IMusicInfoLoader musicInfoLoader,
-            IAlbumDownloader albumDownloader,
             IServiceProvider serviceProvider)
         {
             _lyricsDownloader = lyricsDownloader;
             _musicInfoLoader = musicInfoLoader;
-            _albumDownloader = albumDownloader;
             _serviceProvider = serviceProvider;
         }
 
@@ -43,8 +39,6 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
         [Option("-l|--lyric", CommandOptionType.NoValue, Description = "指定程序需要下载歌词文件。")]
         public bool DownloadLyric { get; set; }
 
-        [Option("-a|--album", CommandOptionType.NoValue, Description = "指定程序需要下载专辑图像。")]
-        public bool DownloadAlbum { get; set; }
 
         [Option("-n|--number", CommandOptionType.SingleValue, Description = "指定下载时候的线程数量。(默认值 1)")]
         public int ParallelNumber { get; set; } = 1;
@@ -72,7 +66,7 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
 
         protected override async Task<int> OnExecuteAsync(CommandLineApplication app)
         {
-            if (!DownloadAlbum && !DownloadLyric)
+            if (!DownloadLyric)
             {
                 throw new ArgumentException("请至少指定一个下载选项，例如 -l(下载歌词) 或 -a(下载专辑图像)。");
             }
@@ -80,11 +74,6 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
             if (DownloadLyric)
             {
                 await _lyricsDownloader.DownloadAsync(await GetMusicInfosAsync(Scanner), ParallelNumber);
-            }
-
-            if (DownloadAlbum)
-            {
-                await _albumDownloader.DownloadAsync(await GetMusicInfosAsync(Scanner), ParallelNumber);
             }
 
             return 0;

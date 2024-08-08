@@ -32,11 +32,6 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.KuWo.JsonModel
 
     public class SongSearchResponseSongDetail
     {
-        /// <summary>
-        /// 专辑名称。
-        /// </summary>
-        [JsonProperty("ALBUM")]
-        public string Album { get; set; } = string.Empty;
 
         /// <summary>
         /// 歌手名称。

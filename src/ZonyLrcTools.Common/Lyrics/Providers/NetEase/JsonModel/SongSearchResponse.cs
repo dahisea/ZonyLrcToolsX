@@ -60,11 +60,6 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         [JsonProperty("artists")]
         public IList<SongArtistModel>? Artists { get; set; }
 
-        /// <summary>
-        /// 歌曲的专辑信息。
-        /// </summary>
-        [JsonProperty("album")]
-        public SongAlbumModel? Album { get; set; }
 
         /// <summary>
         /// 歌曲的实际长度。
@@ -82,18 +77,4 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase.JsonModel
         public string? Name { get; set; }
     }
 
-    public class SongAlbumModel
-    {
-        /// <summary>
-        /// 专辑的名称。
-        /// </summary>
-        [JsonProperty("name")]
-        public string? Name { get; set; }
-
-        /// <summary>
-        /// 专辑图像的 Url 地址。
-        /// </summary>
-        [JsonProperty("img1v1Url")]
-        public string? PictureUrl { get; set; }
-    }
 }
