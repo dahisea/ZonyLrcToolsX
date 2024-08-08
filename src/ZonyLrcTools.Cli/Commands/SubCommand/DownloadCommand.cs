@@ -49,9 +49,6 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
         [Option("-p|--pattern", Description = "指定歌词文件的输出文件名模式。")]
         public string OutputFileNamePattern { get; set; } = "{Artist} - {Name}.lrc";
 
-        [Option("-f|--file", Description = "指定 CSV 文件的路径。")]
-        public string CsvFilePath { get; set; }
-
         [Option("-s|--song-list-id", Description = "指定网易云音乐歌单的 ID，如果有多个歌单，请使用 ';' 分割 ID。")]
         public string SongListId { get; set; }
 
@@ -83,8 +80,6 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
 
             return scanner switch
             {
-                MusicScannerConsts.CsvScanner => await _serviceProvider.GetService<CsvFileMusicScanner>()
-                    .GetMusicInfoFromCsvFileAsync(CsvFilePath, OutputDirectory, OutputFileNamePattern),
                 MusicScannerConsts.NeteaseScanner => await _serviceProvider.GetService<NetEaseMusicSongListMusicScanner>()
                     .GetMusicInfoFromNetEaseMusicSongListAsync(SongListId, OutputDirectory, OutputFileNamePattern),
                 _ => throw new ArgumentException("不支持的扫描器类型。")
@@ -110,8 +105,6 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
 
             switch (scanner)
             {
-                case MusicScannerConsts.CsvScanner when string.IsNullOrWhiteSpace(CsvFilePath):
-                    throw new ArgumentException("当使用 CSV 文件扫描器时，必须指定 CSV 文件的路径。");
                 case MusicScannerConsts.NeteaseScanner when string.IsNullOrWhiteSpace(SongListId):
                     throw new ArgumentException("当使用网易云音乐扫描器时，必须指定歌单的 ID。");
             }
