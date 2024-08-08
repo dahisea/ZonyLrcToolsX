@@ -34,8 +34,6 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
 
-            try
-            {
                 return await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
                     requestOption: request =>
                     {
@@ -45,7 +43,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
                             secretKey,
                             encSecKey));
                     });
-            }
+            
         }
 
         protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject, LyricsProviderArgs args)
