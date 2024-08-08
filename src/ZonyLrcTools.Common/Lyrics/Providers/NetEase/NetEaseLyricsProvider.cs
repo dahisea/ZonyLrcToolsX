@@ -35,7 +35,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
 
             // 直接使用提供的 songId 请求歌词
-            var lyricResponse = await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
+            var response = await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
                 requestOption: request =>
                 {
                     request.Headers.Referrer = new Uri(NetEaseRequestReferer);
@@ -43,7 +43,8 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
                         new GetLyricRequest(args.SongId), secretKey, encSecKey));
                 });
 
-            return await lyricResponse.Content.ReadAsStringAsync();
+            // 获取响应内容
+            return await response.Content.ReadAsStringAsync();
         }
 
         protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject, LyricsProviderArgs args)
