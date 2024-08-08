@@ -5,62 +5,38 @@ namespace ZonyLrcTools.Common.MusicScanner.JsonModel;
 
 public sealed class GetMusicInfoFromNetEaseMusicSongListResponse
 {
-    /// <summary>
-    /// 请求结果代码，为 200 时请求成功。
-    /// </summary>
     [JsonProperty("code")]
     public int Code { get; set; }
 
-    /// <summary>
-    /// 歌单信息。
-    /// </summary>
     [JsonProperty("playlist")]
     public PlayListModel? PlayList { get; set; }
 }
 
 public sealed class PlayListModel
 {
-    /// <summary>
-    /// 歌单的歌曲列表。
-    /// </summary>
     [JsonProperty("tracks")]
-    public ICollection<PlayListSongModel> SongList { get; set; }
+    public ICollection<PlayListSongModel>? SongList { get; set; }
 }
 
 public sealed class PlayListSongModel
 {
-    /// <summary>
-    /// 歌曲的名称。
-    /// </summary>
     [JsonProperty("name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    /// <summary>
-    /// 歌曲的艺术家信息，可能会有多位艺术家/歌手。
-    /// </summary>
     [JsonProperty("ar")]
     [JsonConverter(typeof(PlayListSongArtistModelJsonConverter))]
     public ICollection<PlayListSongArtistModel>? Artists { get; set; }
 
-    /// <summary>
-    /// 歌曲的Sid。
-    /// </summary>
     [JsonProperty("id")]
-    public string SongId { get; set; }
+    public string? SongId { get; set; }
 
-    /// <summary>
-    /// 获取所有艺术家名称，用空格分隔。
-    /// </summary>
     public string ArtistNames => Artists is not null 
-        ? string.Join(" ", Artists.Select(artist => artist.Name)) 
+        ? string.Join(" ", Artists.Select(artist => artist.Name).Where(name => !string.IsNullOrEmpty(name))) 
         : string.Empty;
 }
 
 public sealed class PlayListSongArtistModel
 {
-    /// <summary>
-    /// 艺术家的名称。
-    /// </summary>
     [JsonProperty("name")]
     public string? Name { get; set; }
 }
@@ -69,11 +45,25 @@ public class PlayListSongArtistModelJsonConverter : JsonConverter
 {
     public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
     {
-        throw new NotImplementedException();
+        // Implement the method if needed
+        writer.WriteStartArray();
+        if (value is ICollection<PlayListSongArtistModel> artists)
+        {
+            foreach (var artist in artists)
+            {
+                serializer.Serialize(writer, artist);
+            }
+        }
+        writer.WriteEndArray();
     }
 
     public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
     {
+        if (reader.TokenType == JsonToken.Null)
+        {
+            return null;
+        }
+
         var token = JToken.Load(reader);
         return token.Type switch
         {
