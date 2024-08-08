@@ -202,7 +202,7 @@ namespace ZonyLrcTools.Common.MusicScanner
         public bool IsSuccessful { get; set; }
         public bool IsPruneMusic { get; set; }
 
-        public MusicInfo(string name, string artist, string songId)
+        public class MusicInfo(string name, string artist, string songId)
         {
             Name = name;
             Artist = artist;
