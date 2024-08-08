@@ -50,7 +50,7 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
             CsrfToken = loginResponse.csrfToken ?? string.Empty;
         }
 
-        async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string SongId)
+        async Task<List<MusicInfo>> GetMusicInfoBySongIdAsync(string songId)
         {
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
@@ -62,7 +62,7 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
                     request.Content = new FormUrlEncodedContent(HandleRequest(new
                     {
                         csrf_token = CsrfToken,
-                        id = SongId,
+                        id = songId,
                         n = 1000,
                         offset = 0,
                         total = true,
@@ -82,10 +82,13 @@ public class NetEaseMusicSongListMusicScanner : ISingletonDependency
                 {
                     var artistName = song.Artists?.FirstOrDefault()?.Name ?? string.Empty;
                     var fakeFilePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", artistName));
-
-                    return new MusicInfo(fakeFilePath, song.Name!, artistName);
+                    var songId = song.SongId?.FirstOrDefault()?.Name ?? string.Empty;
+                    return new MusicInfo(fakeFilePath, song.Name!, artistName, songId);
                 }).ToList();
         }
+
+
+
 
         var musicInfoList = new List<MusicInfo>();
         foreach (var songListId in songListIds.Split(';'))

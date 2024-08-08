@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace ZonyLrcTools.Common.MusicScanner.JsonModel;
@@ -39,7 +39,7 @@ public sealed class PlayListSongModel
     /// 歌曲的id。
     /// </summary>
     [JsonProperty("id")]
-    public long songId { get; set; }
+    public string SongId { get; set; }
     
     /// <summary>
     /// 歌曲的艺术家信息，可能会有多位艺术家/歌手。

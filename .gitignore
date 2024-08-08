@@ -452,3 +452,4 @@ fabric.properties
 /src/ZonyLrcTools.Cli/TempFiles/
 
 src/ZonyLrcTools.LocalServer/UiStaticResources/*
+u.sh
