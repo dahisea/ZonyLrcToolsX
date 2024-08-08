@@ -87,10 +87,10 @@ namespace ZonyLrcTools.Common.MusicScanner
                 .Where(song => !string.IsNullOrEmpty(song.Name))
                 .Select(song =>
                 {
-                    var artistNames = song.ArtistNames;;
+                    var artist = song.ArtistNames;;
                     var songId = song.SongId;
                     var name = song.Name!;
-                    return new MusicInfo(name, artistNames, songId);
+                    return new MusicInfo(name, artist, songId);
                 }).ToList();
         }
 

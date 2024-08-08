@@ -2,7 +2,7 @@ namespace ZonyLrcTools.Common.Lyrics
 {
     public class LyricsProviderArgs
     {
-        public string SongName { get; set; }
+        public string Name { get; set; }
 
         public string Artist { get; set; }
 
@@ -10,9 +10,9 @@ namespace ZonyLrcTools.Common.Lyrics
         
         public string SongId { get; set; }
 
-        public LyricsProviderArgs(string songName, string artist, string songId, string? duration)
+        public LyricsProviderArgs(string name, string artist, string songId, string? duration)
         {
-            SongName = songName;
+            Name = name;
             Artist = artist;
             Duration = duration;
             SongId = songId;

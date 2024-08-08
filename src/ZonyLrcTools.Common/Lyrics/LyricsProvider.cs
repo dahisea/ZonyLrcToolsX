@@ -17,9 +17,9 @@ namespace ZonyLrcTools.Common.Lyrics
         /// <param name="artist">歌曲作者/艺术家。</param>
         /// <param name="duration">歌曲的时长。</param>
         /// <returns>下载完成的歌曲数据。</returns>
-        public virtual async ValueTask<LyricsItemCollection> DownloadAsync(string songName, string artist, string songId, string? duration = null)
+        public virtual async ValueTask<LyricsItemCollection> DownloadAsync(string name, string artist, string songId, string? duration = null)
         {
-            var args = new LyricsProviderArgs(songName, artist, duration, songId);
+            var args = new LyricsProviderArgs(name, artist, duration, songId);
             await ValidateAsync(args);
             var downloadDataObject = await DownloadDataAsync(args);
             return await GenerateLyricAsync(downloadDataObject, args);
@@ -31,15 +31,11 @@ namespace ZonyLrcTools.Common.Lyrics
         /// <param name="args">歌词下载时需要的参数信息。</param>
         protected virtual ValueTask ValidateAsync(LyricsProviderArgs args)
         {
-            if (string.IsNullOrEmpty(args.SongName))
+            if (string.IsNullOrEmpty(args.Name))
             {
                 throw new ErrorCodeException(ErrorCodes.SongNameIsNull, attachObj: args);
             }
 
-            if (string.IsNullOrEmpty(args.Artist))
-            {
-                throw new ErrorCodeException(ErrorCodes.SongNameAndArtistIsNull, attachObj: args);
-            }
 
             return ValueTask.CompletedTask;
         }
