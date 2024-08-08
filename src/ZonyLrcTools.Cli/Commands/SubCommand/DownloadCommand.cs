@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using McMaster.Extensions.CommandLineUtils;
 using Microsoft.Extensions.DependencyInjection;
@@ -65,7 +66,9 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
 
             if (DownloadLyric)
             {
-                await _lyricsDownloader.DownloadAsync(await GetMusicInfosAsync(Scanner), ParallelNumber);
+                var musicInfos = await GetMusicInfosAsync(Scanner);
+                var musicInfosConverted = musicInfos.Select(m => new MusicInfo(m.Name, m.Artist, m.SongId)).ToList();
+                await _lyricsDownloader.DownloadAsync(musicInfosConverted, ParallelNumber);
             }
 
             return 0;
