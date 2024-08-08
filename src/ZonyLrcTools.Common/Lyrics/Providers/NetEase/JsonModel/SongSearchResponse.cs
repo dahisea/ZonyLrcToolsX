@@ -78,23 +78,4 @@ public sealed class SongArtistModel
     [JsonProperty("name")]
     public string? Name { get; set; }
 }
-
-public class SongArtistModelJsonConverter : JsonConverter
-{
-    public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
-    {
-        throw new NotImplementedException();
-    }
-
-    public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-    {
-        var token = JToken.Load(reader);
-        return token.Type switch
-        {
-            JTokenType.Array => token.ToObject(objectType),
-            JTokenType.Object => new List<SongArtistModel> { token.ToObject<SongArtistModel>()! },
-            _ => null
-        };
-    }
-}
 }
