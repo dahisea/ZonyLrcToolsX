@@ -1,3 +1,4 @@
+using System.Net.Http;
 using System.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -36,7 +37,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
 
-            var searchResult = await _warpHttpClient.PostAsync<SongSearchResponse>(NetEaseSearchMusicUrl,
+            var searchResultResponse = await _warpHttpClient.PostAsync(NetEaseSearchMusicUrl,
                 requestOption: request =>
                 {
                     request.Headers.Referrer = new Uri(NetEaseRequestReferer);
@@ -46,9 +47,9 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
                         encSecKey));
                 });
 
+            var searchResult = JsonConvert.DeserializeObject<SongSearchResponse>(await searchResultResponse.Content.ReadAsStringAsync());
             ValidateSongSearchResponse(searchResult, args);
 
-            // 直接使用提供的 songId 请求歌词
             var lyricResponse = await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
                 requestOption: request =>
                 {
@@ -78,6 +79,19 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
             return _lyricsItemCollectionFactory.Build(
                 json.OriginalLyric.Text,
                 json.TranslationLyric?.Text);
+        }
+
+        protected virtual void ValidateSongSearchResponse(SongSearchResponse response, LyricsProviderArgs args)
+        {
+            if (response?.StatusCode != SongSearchResponseStatusCode.Success)
+            {
+                throw new ErrorCodeException(ErrorCodes.TheReturnValueIsIllegal, attachObj: args);
+            }
+
+            if (response.Items == null || response.Items.SongCount == 0)
+            {
+                throw new ErrorCodeException(ErrorCodes.NoMatchingSong, attachObj: args);
+            }
         }
 
         private Dictionary<string, string> HandleRequest(object srcParams, string secretKey, string encSecKey)
