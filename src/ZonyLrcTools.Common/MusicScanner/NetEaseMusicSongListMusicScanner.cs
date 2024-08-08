@@ -108,8 +108,8 @@ namespace ZonyLrcTools.Common.MusicScanner
 
         private async Task<LoginResponse> LoginViaQrCodeAsync()
         {
-            var qrCodeKeyJson = await PostAsync<LoginQrCodeKeyResponse>($"{Host}/weapi/login/qrcode/unikey", new { type = 1 });
-            var uniKey = qrCodeKeyJson?.Unikey;
+            var qrCodeKeyResponse = await PostAsync<LoginQrCodeKeyResponse>($"{Host}/weapi/login/qrcode/unikey", new { type = 1 });
+            var uniKey = qrCodeKeyResponse?.Unikey;
 
             if (string.IsNullOrEmpty(uniKey)) return new LoginResponse { CsrfToken = null, CookieContainer = null };
 
@@ -135,7 +135,7 @@ namespace ZonyLrcTools.Common.MusicScanner
         private async Task<CheckLoginResponse> CheckIsLoginAsync(string uniKey)
         {
             var response = await PostAsync<CheckLoginResponse>($"{Host}/weapi/login/qrcode/client/login", new { key = uniKey, type = 1 });
-            var responseCode = response.Code;
+            var responseCode = response?.Code;
 
             if (responseCode != 803) return new CheckLoginResponse { IsSuccess = false, CsrfToken = null, CookieContainer = null };
 
@@ -188,6 +188,7 @@ namespace ZonyLrcTools.Common.MusicScanner
         public bool IsSuccess { get; set; }
         public string? CsrfToken { get; set; }
         public CookieContainer? CookieContainer { get; set; }
+        public int? Code { get; set; } // Add this property to match the response structure
     }
 
     public class LoginQrCodeKeyResponse
