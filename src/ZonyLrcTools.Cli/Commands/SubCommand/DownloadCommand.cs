@@ -74,7 +74,7 @@ namespace ZonyLrcTools.Cli.Commands.SubCommand
         /// <summary>
         /// Get the music infos by the scanner.
         /// </summary>
-        private async Task<List<MusicInfo>> GetMusicInfosAsync(string scanner)
+        private async Task<List<ZonyLrcTools.Common.MusicScanner.MusicInfo>> GetMusicInfosAsync(string scanner)
         {
             ValidateScannerOptions(scanner);
 
