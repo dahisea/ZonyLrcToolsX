@@ -6,7 +6,7 @@ public class MusicInfo
     public bool IsSuccessful { get; set; }
     public bool IsPureMusic { get; set; }
 
-    public MusicInfo(string name, string artist, string songId)
+    public MusicInfo(string name, string artistNames, string songId)
     {
         Name = name;
         Artist = artistNames;
