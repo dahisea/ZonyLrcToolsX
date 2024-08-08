@@ -17,7 +17,9 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
         private readonly ILyricsItemCollectionFactory _lyricsItemCollectionFactory;
         private readonly GlobalOptions _options;
 
+        private const string NetEaseSearchMusicUrl = @"https://music.163.com/weapi/search/get";
         private const string NetEaseGetLyricUrl = @"https://music.163.com/weapi/song/lyric?csrf_token=";
+
         private const string NetEaseRequestReferer = @"https://music.163.com/song?id=";
 
         public NetEaseLyricsProvider(IWarpHttpClient warpHttpClient,
@@ -34,8 +36,20 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
             var secretKey = NetEaseMusicEncryptionHelper.CreateSecretKey(16);
             var encSecKey = NetEaseMusicEncryptionHelper.RsaEncode(secretKey);
 
+            var searchResult = await _warpHttpClient.PostAsync<SongSearchResponse>(NetEaseSearchMusicUrl,
+                requestOption: request =>
+                {
+                    request.Headers.Referrer = new Uri(NetEaseRequestReferer);
+                    request.Content = new FormUrlEncodedContent(HandleRequest(
+                        new SongSearchRequest(args.SongName, args.Artist, _options.Provider.Lyric.GetLyricProviderOption(DownloaderName).Depth),
+                        secretKey,
+                        encSecKey));
+                });
+
+            ValidateSongSearchResponse(searchResult, args);
+
             // 直接使用提供的 songId 请求歌词
-            var response = await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
+            var lyricResponse = await _warpHttpClient.PostAsync(NetEaseGetLyricUrl,
                 requestOption: request =>
                 {
                     request.Headers.Referrer = new Uri(NetEaseRequestReferer);
@@ -43,8 +57,7 @@ namespace ZonyLrcTools.Common.Lyrics.Providers.NetEase
                         new GetLyricRequest(args.SongId), secretKey, encSecKey));
                 });
 
-            // 获取响应内容
-            return await response.Content.ReadAsStringAsync();
+            return await lyricResponse.Content.ReadAsStringAsync();
         }
 
         protected override async ValueTask<LyricsItemCollection> GenerateLyricAsync(object lyricsObject, LyricsProviderArgs args)
