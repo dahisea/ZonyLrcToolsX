@@ -8,7 +8,6 @@ using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using QRCoder;
 using ZonyLrcTools.Common.Infrastructure.DependencyInject;
 using ZonyLrcTools.Common.Infrastructure.Encryption;
@@ -125,7 +124,7 @@ namespace ZonyLrcTools.Common.MusicScanner
                 {
                     return new LoginResponse
                     {
-                        CsrfToken = checkLoginResponse.CookieContainer?.GetCookies(new Uri(Host))["__csrf"]?.Value,
+                        CsrfToken = checkLoginResponse.CsrfToken,
                         CookieContainer = checkLoginResponse.CookieContainer
                     };
                 }
@@ -138,11 +137,12 @@ namespace ZonyLrcTools.Common.MusicScanner
             var response = await PostAsync<CheckLoginResponse>($"{Host}/weapi/login/qrcode/client/login", new { key = uniKey, type = 1 });
             var responseCode = response.Code;
 
-            if (responseCode != 803) return new CheckLoginResponse { IsSuccess = false, CookieContainer = null };
+            if (responseCode != 803) return new CheckLoginResponse { IsSuccess = false, CsrfToken = null, CookieContainer = null };
 
             return new CheckLoginResponse
             {
                 IsSuccess = true,
+                CsrfToken = response.CsrfToken,
                 CookieContainer = response.CookieContainer
             };
         }
@@ -186,6 +186,7 @@ namespace ZonyLrcTools.Common.MusicScanner
     public class CheckLoginResponse
     {
         public bool IsSuccess { get; set; }
+        public string? CsrfToken { get; set; }
         public CookieContainer? CookieContainer { get; set; }
     }
 
@@ -193,12 +194,5 @@ namespace ZonyLrcTools.Common.MusicScanner
     {
         [JsonProperty("unikey")]
         public string? Unikey { get; set; }
-    }
-
-    public class CheckLoginResponse
-    {
-        [JsonProperty("code")]
-        public int Code { get; set; }
-        public CookieContainer? CookieContainer { get; set; }
     }
 }
