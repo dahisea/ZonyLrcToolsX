@@ -1,3 +1,5 @@
+namespace ZonyLrcTools.Common.MusicScanner.JsonModel
+{
 public sealed class PlayListSongModel
 {
     /// <summary>
@@ -25,4 +27,5 @@ public sealed class PlayListSongModel
     public string Artist => ArtistNames != null 
         ? string.Join(" ", ArtistNames.Select(a => a.Name)) 
         : string.Empty;
+}
 }
