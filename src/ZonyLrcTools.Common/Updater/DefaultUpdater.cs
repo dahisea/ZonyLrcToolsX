@@ -9,7 +9,7 @@ namespace ZonyLrcTools.Common.Updater;
 
 public class DefaultUpdater : IUpdater, ISingletonDependency
 {
-    public const string UpdateUrl = "https://127.0.0.1/lrc-tools/update";
+    public const string UpdateUrl = "https://raw.githubusercontent.com/dahisea/ZonyLrcToolsX/dev/update";
 
     private readonly IWarpHttpClient _warpHttpClient;
     private readonly ILogger<DefaultUpdater> _logger;
