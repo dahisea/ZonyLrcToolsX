@@ -97,7 +97,7 @@ namespace ZonyLrcTools.Common.MusicScanner
                 {
                     var filePath = Path.Combine(outputDirectory, pattern.Replace("{Name}", song.Name).Replace("{Artist}", song.Artist));
                     var songId = song.SongId;
-                    return new MusicInfo(filePath, song.Name, artist, songId);
+                    return new MusicInfo(filePath, song.Name, song.Artist, songId);
                 }).ToList();
         }
 
